@@ -21,6 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
+import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.usecases.*;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,7 @@ public final class UseCaseMaidSpecs {
 
     @Test
     public void useCaseWithoutParametersCanBeInvoked() {
+        UseCaseWithoutParameters.INVOCATION_COUNT = 0;
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking("test", UseCaseWithoutParameters.class)
                 .build();
@@ -71,5 +73,21 @@ public final class UseCaseMaidSpecs {
                 .build();
         useCaseMaid.invoke("test", Map.of());
         assertThat(executedSideEffects, contains("the correct side effect"));
+    }
+
+    @Test
+    public void businessLogicExecutionCanBeControlledByDriver() {
+        UseCaseWithoutParameters.INVOCATION_COUNT = 0;
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking("test", UseCaseWithoutParameters.class)
+                .withExecutionDriver(new ExecutionDriver() {
+                    @Override
+                    public boolean shouldExecuteBusinessLogic(final InvocationId invocationId) {
+                        return false;
+                    }
+                })
+                .build();
+        useCaseMaid.invoke("test", Map.of());
+        assertThat(UseCaseWithoutParameters.INVOCATION_COUNT, is(0));
     }
 }

@@ -23,10 +23,10 @@ package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.reflectmaid.ResolvedType;
+import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.sideeffects.CollectorInstance;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
-import de.quantummaid.usecasemaid.sideeffects.driver.SideEffectsDriver;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -43,7 +43,7 @@ public final class UseCaseMaid {
     private final InjectMaid instantiator;
     private final SerializerAndDeserializer serializerAndDeserializer;
     private final List<SideEffectRegistration> sideEffectRegistrations;
-    private final SideEffectsDriver sideEffectsDriver;
+    private final ExecutionDriver executionDriver;
 
     public static UseCaseMaidBuilder aUseCaseMaid() {
         return UseCaseMaidBuilder.useCaseMaidBuilder();
@@ -53,35 +53,44 @@ public final class UseCaseMaid {
                                    final InjectMaid instantiator,
                                    final SerializerAndDeserializer serializerAndDeserializer,
                                    final List<SideEffectRegistration> sideEffectRegistrations,
-                                   final SideEffectsDriver sideEffectsDriver) {
+                                   final ExecutionDriver executionDriver) {
         return new UseCaseMaid(useCases,
                 instantiator,
                 serializerAndDeserializer,
                 sideEffectRegistrations,
-                sideEffectsDriver);
+                executionDriver);
     }
 
     public void invoke(final String route,
                        final Map<String, Object> input) {
+        final InvocationId invocationId = InvocationId.randomInvocationId();
+        invoke(route, input, invocationId);
+    }
+
+    public void invoke(final String route,
+                       final Map<String, Object> input,
+                       final InvocationId invocationId) {
         final UseCaseMethod useCaseMethod = useCases.forRoute(useCaseRoute(route));
-        final ResolvedType objectType = useCaseMethod.useCaseClass();
-        final Object useCase = instantiator.getInstance(objectType);
 
-        final List<CollectorInstance<?, ?>> collectorInstances = sideEffectRegistrations.stream()
-                .map(CollectorInstance::createInstance)
-                .collect(toList());
+            final List<CollectorInstance<?, ?>> collectorInstances = sideEffectRegistrations.stream()
+                    .map(CollectorInstance::createInstance)
+                    .collect(toList());
 
-        final Map<String, Object> parameters = serializerAndDeserializer
-                .deserializeParameters(input, useCaseMethod, injector ->
-                        collectorInstances.forEach(instance ->
-                                injector.put(instance.type(), instance.instance())));
+        if (executionDriver.shouldExecuteBusinessLogic(invocationId)) {
+            final ResolvedType objectType = useCaseMethod.useCaseClass();
+            final Object useCase = instantiator.getInstance(objectType);
+            final Map<String, Object> parameters = serializerAndDeserializer
+                    .deserializeParameters(input, useCaseMethod, injector ->
+                            collectorInstances.forEach(instance ->
+                                    injector.put(instance.type(), instance.instance())));
 
-        try {
-            useCaseMethod.invoke(useCase, parameters);
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
+            try {
+                useCaseMethod.invoke(useCase, parameters);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            }
         }
 
-        sideEffectsDriver.executeSideEffects(collectorInstances);
+        executionDriver.executeSideEffects(collectorInstances);
     }
 }

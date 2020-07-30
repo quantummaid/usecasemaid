@@ -27,11 +27,11 @@ import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
+import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.serializing.UseCaseClassScanner;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectExecutor;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
-import de.quantummaid.usecasemaid.sideeffects.driver.SideEffectsDriver;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -42,18 +42,19 @@ import java.util.List;
 import java.util.Map;
 
 import static de.quantummaid.reflectmaid.GenericType.genericType;
+import static de.quantummaid.reflectmaid.validators.NotNullValidator.validateNotNull;
 import static de.quantummaid.usecasemaid.UseCaseRoute.useCaseRoute;
 import static de.quantummaid.usecasemaid.UseCases.useCases;
+import static de.quantummaid.usecasemaid.driver.SimpleExecutionDriver.simpleExecutionDriver;
 import static de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer.serializationAndDeserialization;
 import static de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration.sideEffectRegistration;
-import static de.quantummaid.usecasemaid.sideeffects.driver.SimpleSideEffectsDriver.simpleSideEffectsDriver;
 import static de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod.useCaseMethodOf;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCaseMaidBuilder {
     private final Map<String, GenericType<?>> useCases;
     private final List<SideEffectRegistration> sideEffectRegistrations;
-    private SideEffectsDriver sideEffectsDriver = simpleSideEffectsDriver();
+    private ExecutionDriver executionDriver = simpleExecutionDriver();
 
     static UseCaseMaidBuilder useCaseMaidBuilder() {
         return new UseCaseMaidBuilder(
@@ -87,6 +88,12 @@ public final class UseCaseMaidBuilder {
         return this;
     }
 
+    public UseCaseMaidBuilder withExecutionDriver(final ExecutionDriver executionDriver) {
+        validateNotNull(executionDriver, "executionDriver");
+        this.executionDriver = executionDriver;
+        return this;
+    }
+
     public UseCaseMaid build() {
         final Map<UseCaseRoute, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid();
@@ -110,7 +117,7 @@ public final class UseCaseMaidBuilder {
                 injectMaid,
                 serializerAndDeserializer,
                 sideEffectRegistrations,
-                sideEffectsDriver
+                executionDriver
         );
     }
 }

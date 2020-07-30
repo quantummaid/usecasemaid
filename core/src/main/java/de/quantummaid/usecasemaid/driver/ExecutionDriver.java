@@ -19,20 +19,22 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.sideeffects.driver;
+package de.quantummaid.usecasemaid.driver;
 
+import de.quantummaid.usecasemaid.InvocationId;
 import de.quantummaid.usecasemaid.sideeffects.CollectorInstance;
 
 import java.util.List;
 
-public final class SimpleSideEffectsDriver implements SideEffectsDriver {
-
-    public static SideEffectsDriver simpleSideEffectsDriver() {
-        return new SimpleSideEffectsDriver();
+public interface ExecutionDriver {
+    default boolean shouldExecuteBusinessLogic(final InvocationId invocationId) {
+        return true;
     }
 
-    @Override
-    public <S> void executeSideEffects(final List<CollectorInstance<?, ?>> collectors) {
+    default void executeSideEffects(List<CollectorInstance<?, ?>> collectors) {
         collectors.forEach(CollectorInstance::executeAll);
+    }
+
+    default void afterInvocation(final InvocationId invocationId) {
     }
 }

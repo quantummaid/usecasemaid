@@ -19,13 +19,11 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.sideeffects.driver;
+package de.quantummaid.usecasemaid.driver;
 
-import de.quantummaid.usecasemaid.sideeffects.CollectorInstance;
+public final class SimpleExecutionDriver implements ExecutionDriver {
 
-import java.util.List;
-
-public interface SideEffectsDriver {
-
-    <S> void executeSideEffects(List<CollectorInstance<?, ?>> collectors);
+    public static ExecutionDriver simpleExecutionDriver() {
+        return new SimpleExecutionDriver();
+    }
 }
