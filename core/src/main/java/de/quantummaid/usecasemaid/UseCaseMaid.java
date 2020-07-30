@@ -73,11 +73,11 @@ public final class UseCaseMaid {
                        final Map<String, Object> input,
                        final InvocationId invocationId) {
         final UseCaseMethod useCaseMethod = useCases.forRoute(useCaseRoute(route));
-        final List<SideEffectInstance<?>> sideEffects = executionDriver.bypassUseCaseExecution(invocationId, () -> {
+        final List<SideEffectInstance<?>> sideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
             final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances();
 
             final ResolvedType objectType = useCaseMethod.useCaseClass();
-            final Object useCase = instantiator.enterScope(InvocationId.class, invocationId).getInstance(objectType);
+            final Object useCase = scopedInjector.getInstance(objectType);
             final Map<String, Object> parameters = serializerAndDeserializer
                     .deserializeParameters(input, useCaseMethod, injector ->
                             collectorInstances.forEach(instance ->
@@ -95,6 +95,6 @@ public final class UseCaseMaid {
                     .collect(toList());
         });
 
-        executionDriver.executeSideEffects(sideEffects, sideEffectsSystem);
+        executionDriver.executeSideEffects(invocationId, sideEffects, instantiator, sideEffectsSystem);
     }
 }

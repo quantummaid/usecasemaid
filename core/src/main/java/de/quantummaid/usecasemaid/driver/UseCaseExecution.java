@@ -21,10 +21,11 @@
 
 package de.quantummaid.usecasemaid.driver;
 
+import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 
 import java.util.List;
 
 public interface UseCaseExecution {
-    List<SideEffectInstance<?>> executeUseCase();
+    List<SideEffectInstance<?>> executeUseCase(InjectMaid injector);
 }

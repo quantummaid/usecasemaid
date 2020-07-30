@@ -57,6 +57,7 @@ public final class UseCaseMaidBuilder {
     private final Map<String, GenericType<?>> useCases = new LinkedHashMap<>();
     private final List<SideEffectRegistration> sideEffectRegistrations = new ArrayList<>();
     private ExecutionDriver executionDriver = simpleExecutionDriver();
+    private final List<InjectMaidModule> dependencies = new ArrayList<>();
     private final List<InjectMaidModule> invocationScopedDependencies = new ArrayList<>();
 
     static UseCaseMaidBuilder useCaseMaidBuilder() {
@@ -94,6 +95,11 @@ public final class UseCaseMaidBuilder {
         return this;
     }
 
+    public UseCaseMaidBuilder withDependencies(final InjectMaidModule module) {
+        dependencies.add(module);
+        return this;
+    }
+
     public UseCaseMaidBuilder withInvocationScopedDependencies(final InjectMaidModule module) {
         invocationScopedDependencies.add(module);
         return this;
@@ -104,6 +110,7 @@ public final class UseCaseMaidBuilder {
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid();
         final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid();
 
+        dependencies.forEach(injectMaidBuilder::withModule);
         injectMaidBuilder.withScope(InvocationId.class, builder -> {
             invocationScopedDependencies.forEach(builder::withModule);
             useCases.forEach((route, type) -> {

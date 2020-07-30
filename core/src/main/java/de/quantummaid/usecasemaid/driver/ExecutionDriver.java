@@ -21,6 +21,7 @@
 
 package de.quantummaid.usecasemaid.driver;
 
+import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.usecasemaid.InvocationId;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectsSystem;
@@ -28,12 +29,16 @@ import de.quantummaid.usecasemaid.sideeffects.SideEffectsSystem;
 import java.util.List;
 
 public interface ExecutionDriver {
-    default List<SideEffectInstance<?>> bypassUseCaseExecution(final InvocationId invocationId,
-                                                               final UseCaseExecution useCaseExecution) {
-        return useCaseExecution.executeUseCase();
+    default List<SideEffectInstance<?>> executeUseCase(final InvocationId invocationId,
+                                                       final InjectMaid injector,
+                                                       final UseCaseExecution useCaseExecution) {
+        final InjectMaid scopedInjector = injector.enterScope(InvocationId.class, invocationId);
+        return useCaseExecution.executeUseCase(scopedInjector);
     }
 
-    default void executeSideEffects(final List<SideEffectInstance<?>> sideEffects,
+    default void executeSideEffects(final InvocationId invocationId,
+                                    final List<SideEffectInstance<?>> sideEffects,
+                                    final InjectMaid injector,
                                     final SideEffectsSystem sideEffectsSystem) {
         sideEffects.forEach(sideEffectsSystem::execute);
     }
