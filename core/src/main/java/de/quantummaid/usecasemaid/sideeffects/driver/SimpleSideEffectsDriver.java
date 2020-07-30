@@ -19,12 +19,20 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.usecases;
+package de.quantummaid.usecasemaid.sideeffects.driver;
 
-public final class UseCaseWithParameters {
-    public static MyDto LAST_PARAMETER = null;
+import de.quantummaid.usecasemaid.sideeffects.CollectorInstance;
 
-    public void execute(final MyDto myDto) {
-        LAST_PARAMETER = myDto;
+import java.util.List;
+
+public final class SimpleSideEffectsDriver implements SideEffectsDriver {
+
+    public static SideEffectsDriver simpleSideEffectsDriver() {
+        return new SimpleSideEffectsDriver();
+    }
+
+    @Override
+    public <S> void executeSideEffects(final List<CollectorInstance<?, ?>> collectors) {
+        collectors.forEach(CollectorInstance::executeAll);
     }
 }

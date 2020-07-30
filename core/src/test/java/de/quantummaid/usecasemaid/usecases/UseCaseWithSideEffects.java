@@ -21,10 +21,13 @@
 
 package de.quantummaid.usecasemaid.usecases;
 
-public final class UseCaseWithParameters {
-    public static MyDto LAST_PARAMETER = null;
+import java.util.List;
 
-    public void execute(final MyDto myDto) {
-        LAST_PARAMETER = myDto;
+import static de.quantummaid.usecasemaid.usecases.MySideEffect.mySideEffect;
+
+public final class UseCaseWithSideEffects {
+
+    public void execute(final List<MySideEffect> sideEffectsCollector) {
+        sideEffectsCollector.add(mySideEffect("the correct side effect"));
     }
 }

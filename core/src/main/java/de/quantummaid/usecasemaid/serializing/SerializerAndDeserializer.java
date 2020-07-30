@@ -22,6 +22,7 @@
 package de.quantummaid.usecasemaid.serializing;
 
 import de.quantummaid.mapmaid.MapMaid;
+import de.quantummaid.mapmaid.mapper.injector.InjectorLambda;
 import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
@@ -46,7 +47,9 @@ public final class SerializerAndDeserializer {
         return new SerializerAndDeserializer(mapMaid);
     }
 
-    public Map<String, Object> deserializeParameters(final Map<String, Object> input, final UseCaseMethod useCaseMethod) {
+    public Map<String, Object> deserializeParameters(final Map<String, Object> input,
+                                                     final UseCaseMethod useCaseMethod,
+                                                     final InjectorLambda injector) {
         final Map<String, Object> parameters = new LinkedHashMap<>();
         useCaseMethod.parameters().forEach((name, type) -> {
             final Object serialized = input.get(name);
@@ -54,8 +57,7 @@ public final class SerializerAndDeserializer {
             final Object deserialized = mapMaid.deserializer()
                     .deserializeFromUniversalObject(serialized,
                             targetType,
-                            injector -> {
-                            });
+                            injector);
             parameters.put(name, deserialized);
         });
         return parameters;

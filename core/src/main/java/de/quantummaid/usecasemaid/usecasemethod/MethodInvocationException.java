@@ -34,7 +34,7 @@ public final class MethodInvocationException extends RuntimeException {
                                                                       final Method useCaseMethod,
                                                                       final Map<String, Object> parameters,
                                                                       final Exception cause) {
-        String message = String.format("Could not call method '%s' of class '%s' with arg '%s' on object '%s'",
+        final String message = String.format("Could not call method '%s' of class '%s' with arg '%s' on object '%s'",
                 useCaseMethod,
                 useCaseClass,
                 parameters,

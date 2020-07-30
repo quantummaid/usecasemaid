@@ -24,19 +24,26 @@ package de.quantummaid.usecasemaid;
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
+import de.quantummaid.usecasemaid.sideeffects.CollectorInstance;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
+import de.quantummaid.usecasemaid.sideeffects.driver.SideEffectsDriver;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
 import java.util.Map;
 
 import static de.quantummaid.usecasemaid.UseCaseRoute.useCaseRoute;
+import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCaseMaid {
     private final UseCases useCases;
     private final InjectMaid instantiator;
     private final SerializerAndDeserializer serializerAndDeserializer;
+    private final List<SideEffectRegistration> sideEffectRegistrations;
+    private final SideEffectsDriver sideEffectsDriver;
 
     public static UseCaseMaidBuilder aUseCaseMaid() {
         return UseCaseMaidBuilder.useCaseMaidBuilder();
@@ -44,22 +51,37 @@ public final class UseCaseMaid {
 
     static UseCaseMaid useCaseMaid(final UseCases useCases,
                                    final InjectMaid instantiator,
-                                   final SerializerAndDeserializer serializerAndDeserializer) {
-        return new UseCaseMaid(useCases, instantiator, serializerAndDeserializer);
+                                   final SerializerAndDeserializer serializerAndDeserializer,
+                                   final List<SideEffectRegistration> sideEffectRegistrations,
+                                   final SideEffectsDriver sideEffectsDriver) {
+        return new UseCaseMaid(useCases,
+                instantiator,
+                serializerAndDeserializer,
+                sideEffectRegistrations,
+                sideEffectsDriver);
     }
 
     public void invoke(final String route,
                        final Map<String, Object> input) {
         final UseCaseMethod useCaseMethod = useCases.forRoute(useCaseRoute(route));
         final ResolvedType objectType = useCaseMethod.useCaseClass();
-        final Object instance = instantiator.getInstance(objectType);
+        final Object useCase = instantiator.getInstance(objectType);
 
-        final Map<String, Object> parameters = serializerAndDeserializer.deserializeParameters(input, useCaseMethod);
+        final List<CollectorInstance<?, ?>> collectorInstances = sideEffectRegistrations.stream()
+                .map(CollectorInstance::createInstance)
+                .collect(toList());
+
+        final Map<String, Object> parameters = serializerAndDeserializer
+                .deserializeParameters(input, useCaseMethod, injector ->
+                        collectorInstances.forEach(instance ->
+                                injector.put(instance.type(), instance.instance())));
 
         try {
-            useCaseMethod.invoke(instance, parameters);
+            useCaseMethod.invoke(useCase, parameters);
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
+
+        sideEffectsDriver.executeSideEffects(collectorInstances);
     }
 }

@@ -19,35 +19,24 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.serializing;
+package de.quantummaid.usecasemaid.usecases;
 
-import de.quantummaid.mapmaid.MapMaid;
-import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.Map;
-
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapMaidDeserializer {
-    private final TypeIdentifier typeIdentifier;
+public final class MySideEffect {
+    private final String value;
 
-    public static MapMaidDeserializer mapMaidDeserializer(final TypeIdentifier typeIdentifier) {
-        return new MapMaidDeserializer(typeIdentifier);
+    public static MySideEffect mySideEffect(final String value) {
+        return new MySideEffect(value);
     }
 
-    public Map<String, Object> deserializeParameters(final Map<String, Object> input,
-                                                     final MapMaid mapMaid) {
-        return mapMaid.deserializer().deserializeFromUniversalObject(
-                input,
-                this.typeIdentifier,
-                injector -> {
-                }
-        );
+    public String getValue() {
+        return value;
     }
 }
-

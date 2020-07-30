@@ -21,16 +21,17 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.usecasemaid.usecases.MyDto;
-import de.quantummaid.usecasemaid.usecases.UseCaseWithoutParameters;
-import de.quantummaid.usecasemaid.usecases.UseCaseWithParameters;
+import de.quantummaid.usecasemaid.usecases.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
 
 public final class UseCaseMaidSpecs {
 
@@ -56,5 +57,19 @@ public final class UseCaseMaidSpecs {
                 )
         );
         assertThat(UseCaseWithParameters.LAST_PARAMETER, is(MyDto.myDto("a", "b", "c")));
+    }
+
+    @Test
+    public void useCaseCanHaveSideEffects() {
+        final List<String> executedSideEffects = new ArrayList<>();
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking("test", UseCaseWithSideEffects.class)
+                .withSideEffects(MySideEffect.class, sideEffect -> {
+                    final String value = sideEffect.getValue();
+                    executedSideEffects.add(value);
+                })
+                .build();
+        useCaseMaid.invoke("test", Map.of());
+        assertThat(executedSideEffects, contains("the correct side effect"));
     }
 }

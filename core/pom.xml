@@ -20,8 +20,7 @@
   ~ under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -36,6 +35,12 @@
     <name>UseCaseMaid - Core Library</name>
 
     <properties>
+        <checkstyle.suppressions.location>
+            ${project.basedir}/src/test/checkstyle/checkstyle-suppressions.xml
+        </checkstyle.suppressions.location>
+        <spotbugs.excludeFilterFile>
+            ${project.basedir}/src/test/spotbugs/spotbugs-exclude.xml
+        </spotbugs.excludeFilterFile>
         <plugin-update-file-checksum>35fe547b725ca8e71b0d13c8c21894df</plugin-update-file-checksum>
         <sonar.coverage.jacoco.xmlReportPaths>../coverage/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>

@@ -19,12 +19,16 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.usecases;
+package de.quantummaid.usecasemaid.sideeffects.collector;
 
-public final class UseCaseWithParameters {
-    public static MyDto LAST_PARAMETER = null;
+import de.quantummaid.reflectmaid.GenericType;
 
-    public void execute(final MyDto myDto) {
-        LAST_PARAMETER = myDto;
-    }
+import java.util.List;
+
+public interface SideEffectsCollector<S, C> {
+    GenericType<C> collectorType();
+
+    C createCollectorInstance();
+
+    List<S> unpackSideEffects(C collector);
 }

@@ -29,14 +29,12 @@ import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 
-import java.util.List;
 import java.util.Map;
 
 import static de.quantummaid.mapmaid.builder.RequiredCapabilities.deserialization;
 import static de.quantummaid.mapmaid.builder.RequiredCapabilities.serialization;
 import static de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType.deserializationOnlyType;
 import static de.quantummaid.mapmaid.shared.identifier.VirtualTypeIdentifier.uniqueVirtualTypeIdentifier;
-import static de.quantummaid.mapmaid.shared.validators.NotNullValidator.validateNotNull;
 import static de.quantummaid.usecasemaid.serializing.VirtualDeserializer.virtualDeserializerFor;
 import static java.lang.String.format;
 

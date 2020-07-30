@@ -19,35 +19,44 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.serializing;
+package de.quantummaid.usecasemaid.sideeffects.collector;
 
-import de.quantummaid.mapmaid.MapMaid;
-import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
+import de.quantummaid.reflectmaid.GenericType;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
+import static de.quantummaid.reflectmaid.GenericType.genericType;
 
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapMaidDeserializer {
-    private final TypeIdentifier typeIdentifier;
+public final class ListSideEffectsCollector<S> implements SideEffectsCollector<S, List<S>> {
+    private final GenericType<S> sideEffectsType;
+    private final GenericType<List<S>> collectorType;
 
-    public static MapMaidDeserializer mapMaidDeserializer(final TypeIdentifier typeIdentifier) {
-        return new MapMaidDeserializer(typeIdentifier);
+    @SuppressWarnings("unchecked")
+    public static <S> ListSideEffectsCollector<S> sideEffectsCollector(final GenericType<S> sideEffectType) {
+        final GenericType<List<S>> collectorType = (GenericType<List<S>>) (Object) genericType(List.class, sideEffectType);
+        return new ListSideEffectsCollector<>(sideEffectType, collectorType);
     }
 
-    public Map<String, Object> deserializeParameters(final Map<String, Object> input,
-                                                     final MapMaid mapMaid) {
-        return mapMaid.deserializer().deserializeFromUniversalObject(
-                input,
-                this.typeIdentifier,
-                injector -> {
-                }
-        );
+    @Override
+    public GenericType<List<S>> collectorType() {
+        return collectorType;
+    }
+
+    @Override
+    public List<S> createCollectorInstance() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<S> unpackSideEffects(final List<S> collector) {
+        return collector;
     }
 }
-

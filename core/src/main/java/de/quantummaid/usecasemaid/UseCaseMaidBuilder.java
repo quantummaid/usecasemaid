@@ -29,35 +29,61 @@ import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.serializing.UseCaseClassScanner;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectExecutor;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
+import de.quantummaid.usecasemaid.sideeffects.driver.SideEffectsDriver;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
+import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.usecasemaid.UseCaseRoute.useCaseRoute;
 import static de.quantummaid.usecasemaid.UseCases.useCases;
 import static de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer.serializationAndDeserialization;
+import static de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration.sideEffectRegistration;
+import static de.quantummaid.usecasemaid.sideeffects.driver.SimpleSideEffectsDriver.simpleSideEffectsDriver;
 import static de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod.useCaseMethodOf;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCaseMaidBuilder {
     private final Map<String, GenericType<?>> useCases;
+    private final List<SideEffectRegistration> sideEffectRegistrations;
+    private SideEffectsDriver sideEffectsDriver = simpleSideEffectsDriver();
 
     static UseCaseMaidBuilder useCaseMaidBuilder() {
-        return new UseCaseMaidBuilder(new LinkedHashMap<>());
+        return new UseCaseMaidBuilder(
+                new LinkedHashMap<>(),
+                new ArrayList<>()
+        );
     }
 
     public UseCaseMaidBuilder invoking(final String route,
                                        final Class<?> useCase) {
-        final GenericType<?> genericType = GenericType.genericType(useCase);
+        final GenericType<?> genericType = genericType(useCase);
         return invoking(route, genericType);
     }
 
     public UseCaseMaidBuilder invoking(final String route,
                                        final GenericType<?> useCase) {
         useCases.put(route, useCase);
+        return this;
+    }
+
+    public <S> UseCaseMaidBuilder withSideEffects(final Class<S> sideEffectType,
+                                                  final SideEffectExecutor<S> sideEffectExecutor) {
+        final GenericType<S> genericType = genericType(sideEffectType);
+        return withSideEffects(genericType, sideEffectExecutor);
+    }
+
+    public <S> UseCaseMaidBuilder withSideEffects(final GenericType<S> sideEffectType,
+                                                  final SideEffectExecutor<S> sideEffectExecutor) {
+        final SideEffectRegistration sideEffectRegistration = sideEffectRegistration(sideEffectType, sideEffectExecutor);
+        sideEffectRegistrations.add(sideEffectRegistration);
         return this;
     }
 
@@ -72,9 +98,19 @@ public final class UseCaseMaidBuilder {
             UseCaseClassScanner.addMethod(useCaseMethod, mapMaidBuilder);
             injectMaidBuilder.withType(type);
         });
+        sideEffectRegistrations.forEach(sideEffectRegistration -> {
+            final GenericType<?> type = sideEffectRegistration.type();
+            mapMaidBuilder.injecting(type);
+        });
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
         final InjectMaid injectMaid = injectMaidBuilder.build();
-        return UseCaseMaid.useCaseMaid(useCases(useCaseMethods), injectMaid, serializerAndDeserializer);
+        return UseCaseMaid.useCaseMaid(
+                useCases(useCaseMethods),
+                injectMaid,
+                serializerAndDeserializer,
+                sideEffectRegistrations,
+                sideEffectsDriver
+        );
     }
 }
