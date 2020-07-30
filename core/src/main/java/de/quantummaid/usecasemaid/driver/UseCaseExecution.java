@@ -21,12 +21,10 @@
 
 package de.quantummaid.usecasemaid.driver;
 
-public final class SimpleExecutionDriver implements ExecutionDriver {
+import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 
-    private SimpleExecutionDriver() {
-    }
+import java.util.List;
 
-    public static ExecutionDriver simpleExecutionDriver() {
-        return new SimpleExecutionDriver();
-    }
+public interface UseCaseExecution {
+    List<SideEffectInstance<?>> executeUseCase();
 }

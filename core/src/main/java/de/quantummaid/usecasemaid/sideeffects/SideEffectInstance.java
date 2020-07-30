@@ -19,33 +19,35 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid;
+package de.quantummaid.usecasemaid.sideeffects;
 
+import de.quantummaid.reflectmaid.ResolvedType;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.UUID;
-
-import static de.quantummaid.reflectmaid.validators.NotNullValidator.validateNotNull;
-
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class InvocationId {
-    private final String value;
+public final class SideEffectInstance<S> {
+    private final S sideEffect;
+    private final ResolvedType type;
 
-    public static InvocationId randomInvocationId() {
-        return invocationId(UUID.randomUUID().toString());
+    public static <S> SideEffectInstance<S> sideEffectInstance(final S sideEffect) {
+        return new SideEffectInstance<>(sideEffect, ResolvedType.resolvedType(sideEffect.getClass()));
     }
 
-    public static InvocationId invocationId(final String value) {
-        validateNotNull(value, "value");
-        return new InvocationId(value);
+    public static <S> SideEffectInstance<S> sideEffectInstance(final S sideEffect,
+                                                               final ResolvedType type) {
+        return new SideEffectInstance<>(sideEffect, type);
     }
 
-    public String value() {
-        return value;
+    public S sideEffect() {
+        return sideEffect;
+    }
+
+    public ResolvedType type() {
+        return type;
     }
 }

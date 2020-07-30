@@ -19,10 +19,11 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.sideeffects;
+package de.quantummaid.usecasemaid.sideeffects.collector;
 
 import de.quantummaid.reflectmaid.ResolvedType;
-import de.quantummaid.usecasemaid.sideeffects.collector.SideEffectsCollector;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -30,38 +31,41 @@ import lombok.ToString;
 
 import java.util.List;
 
+import static de.quantummaid.usecasemaid.sideeffects.SideEffectInstance.sideEffectInstance;
+import static java.util.stream.Collectors.toList;
+
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class CollectorInstance<S, C> {
-    private final C instance;
+public final class CollectorInstance<C, S> {
     private final SideEffectsCollector<S, C> collector;
-    private final SideEffectExecutor<S> executor;
+    private final C collectorInstance;
+    private final ResolvedType collectorType;
+    private final ResolvedType sideEffectType;
 
     @SuppressWarnings("unchecked")
     public static CollectorInstance<?, ?> createInstance(final SideEffectRegistration registration) {
         final SideEffectsCollector<Object, Object> collector = (SideEffectsCollector<Object, Object>) registration.collector();
         final Object instance = collector.createCollectorInstance();
-        final SideEffectExecutor<Object> executor = (SideEffectExecutor<Object>) registration.executor();
-        return collectorInstance(instance, collector, executor);
+        return new CollectorInstance<>(
+                collector,
+                instance,
+                collector.collectorType().toResolvedType(),
+                registration.type().toResolvedType()
+        );
     }
 
-    public static <S, C> CollectorInstance<S, C> collectorInstance(final C instance,
-                                                                   final SideEffectsCollector<S, C> collector,
-                                                                   final SideEffectExecutor<S> executor) {
-        return new CollectorInstance<>(instance, collector, executor);
+    public C collectorInstance() {
+        return collectorInstance;
     }
 
-    public Object instance() {
-        return instance;
+    public ResolvedType collectorType() {
+        return collectorType;
     }
 
-    public ResolvedType type() {
-        return collector.collectorType().toResolvedType();
-    }
-
-    public void executeAll() {
-        final List<S> sideEffects = collector.unpackSideEffects(instance);
-        sideEffects.forEach(executor::execute);
+    public List<SideEffectInstance<S>> collectInstances() {
+        return collector.unpackSideEffects(collectorInstance).stream()
+                .map(sideEffect -> sideEffectInstance(sideEffect, sideEffectType))
+                .collect(toList());
     }
 }

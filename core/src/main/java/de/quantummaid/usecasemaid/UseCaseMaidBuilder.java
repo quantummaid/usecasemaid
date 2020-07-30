@@ -32,6 +32,7 @@ import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.serializing.UseCaseClassScanner;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectExecutor;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectsSystem;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -105,10 +106,14 @@ public final class UseCaseMaidBuilder {
             UseCaseClassScanner.addMethod(useCaseMethod, mapMaidBuilder);
             injectMaidBuilder.withType(type);
         });
+
+        final Map<ResolvedType, SideEffectRegistration> sideEffectRegistrationMap = new LinkedHashMap<>();
         sideEffectRegistrations.forEach(sideEffectRegistration -> {
             final GenericType<?> type = sideEffectRegistration.type();
             mapMaidBuilder.injecting(type);
+            sideEffectRegistrationMap.put(type.toResolvedType(), sideEffectRegistration);
         });
+        final SideEffectsSystem sideEffectsSystem = SideEffectsSystem.sideEffectsSystem(sideEffectRegistrationMap);
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
         final InjectMaid injectMaid = injectMaidBuilder.build();
@@ -116,7 +121,7 @@ public final class UseCaseMaidBuilder {
                 useCases(useCaseMethods),
                 injectMaid,
                 serializerAndDeserializer,
-                sideEffectRegistrations,
+                sideEffectsSystem,
                 executionDriver
         );
     }

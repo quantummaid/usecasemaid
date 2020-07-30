@@ -22,19 +22,19 @@
 package de.quantummaid.usecasemaid.driver;
 
 import de.quantummaid.usecasemaid.InvocationId;
-import de.quantummaid.usecasemaid.sideeffects.CollectorInstance;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectsSystem;
 
 import java.util.List;
 
 public interface ExecutionDriver {
-    default boolean shouldExecuteBusinessLogic(final InvocationId invocationId) {
-        return true;
+    default List<SideEffectInstance<?>> bypassUseCaseExecution(final InvocationId invocationId,
+                                                               final UseCaseExecution useCaseExecution) {
+        return useCaseExecution.executeUseCase();
     }
 
-    default void executeSideEffects(List<CollectorInstance<?, ?>> collectors) {
-        collectors.forEach(CollectorInstance::executeAll);
-    }
-
-    default void afterInvocation(final InvocationId invocationId) {
+    default void executeSideEffects(final List<SideEffectInstance<?>> sideEffects,
+                                    final SideEffectsSystem sideEffectsSystem) {
+        sideEffects.forEach(sideEffectsSystem::execute);
     }
 }

@@ -37,12 +37,13 @@ import static de.quantummaid.usecasemaid.sideeffects.collector.ListSideEffectsCo
 public final class SideEffectRegistration {
     private final GenericType<?> sideEffectType;
     private final SideEffectsCollector<?, ?> sideEffectsCollector;
-    private final SideEffectExecutor<?> sideEffectExecutor;
+    private final SideEffectExecutor<Object> sideEffectExecutor;
 
+    @SuppressWarnings("unchecked")
     public static SideEffectRegistration sideEffectRegistration(final GenericType<?> sideEffectType,
                                                                 final SideEffectExecutor<?> sideEffectExecutor) {
         final ListSideEffectsCollector<?> sideEffectsCollector = sideEffectsCollector(sideEffectType);
-        return new SideEffectRegistration(sideEffectType, sideEffectsCollector, sideEffectExecutor);
+        return new SideEffectRegistration(sideEffectType, sideEffectsCollector, (SideEffectExecutor<Object>) sideEffectExecutor);
     }
 
     public GenericType<?> type() {
@@ -53,7 +54,7 @@ public final class SideEffectRegistration {
         return sideEffectsCollector;
     }
 
-    public SideEffectExecutor<?> executor() {
+    public SideEffectExecutor<Object> executor() {
         return sideEffectExecutor;
     }
 }
