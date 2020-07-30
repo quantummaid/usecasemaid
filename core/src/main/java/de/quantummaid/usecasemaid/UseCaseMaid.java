@@ -77,7 +77,7 @@ public final class UseCaseMaid {
             final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances();
 
             final ResolvedType objectType = useCaseMethod.useCaseClass();
-            final Object useCase = instantiator.getInstance(objectType);
+            final Object useCase = instantiator.enterScope(InvocationId.class, invocationId).getInstance(objectType);
             final Map<String, Object> parameters = serializerAndDeserializer
                     .deserializeParameters(input, useCaseMethod, injector ->
                             collectorInstances.forEach(instance ->

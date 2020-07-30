@@ -23,6 +23,7 @@ package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.InjectMaidBuilder;
+import de.quantummaid.injectmaid.InjectMaidModule;
 import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.reflectmaid.GenericType;
@@ -53,15 +54,13 @@ import static de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod.useCaseMeth
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCaseMaidBuilder {
-    private final Map<String, GenericType<?>> useCases;
-    private final List<SideEffectRegistration> sideEffectRegistrations;
+    private final Map<String, GenericType<?>> useCases = new LinkedHashMap<>();
+    private final List<SideEffectRegistration> sideEffectRegistrations = new ArrayList<>();
     private ExecutionDriver executionDriver = simpleExecutionDriver();
+    private final List<InjectMaidModule> invocationScopedDependencies = new ArrayList<>();
 
     static UseCaseMaidBuilder useCaseMaidBuilder() {
-        return new UseCaseMaidBuilder(
-                new LinkedHashMap<>(),
-                new ArrayList<>()
-        );
+        return new UseCaseMaidBuilder();
     }
 
     public UseCaseMaidBuilder invoking(final String route,
@@ -95,16 +94,25 @@ public final class UseCaseMaidBuilder {
         return this;
     }
 
+    public UseCaseMaidBuilder withInvocationScopedDependencies(final InjectMaidModule module) {
+        invocationScopedDependencies.add(module);
+        return this;
+    }
+
     public UseCaseMaid build() {
         final Map<UseCaseRoute, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid();
         final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid();
-        useCases.forEach((route, type) -> {
-            final ResolvedType resolvedType = type.toResolvedType();
-            final UseCaseMethod useCaseMethod = useCaseMethodOf(resolvedType);
-            useCaseMethods.put(useCaseRoute(route), useCaseMethod);
-            UseCaseClassScanner.addMethod(useCaseMethod, mapMaidBuilder);
-            injectMaidBuilder.withType(type);
+
+        injectMaidBuilder.withScope(InvocationId.class, builder -> {
+            invocationScopedDependencies.forEach(builder::withModule);
+            useCases.forEach((route, type) -> {
+                final ResolvedType resolvedType = type.toResolvedType();
+                final UseCaseMethod useCaseMethod = useCaseMethodOf(resolvedType);
+                useCaseMethods.put(useCaseRoute(route), useCaseMethod);
+                UseCaseClassScanner.addMethod(useCaseMethod, mapMaidBuilder);
+                builder.withType(type);
+            });
         });
 
         final Map<ResolvedType, SideEffectRegistration> sideEffectRegistrationMap = new LinkedHashMap<>();
