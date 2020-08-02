@@ -19,12 +19,12 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.specialusecases.usecases;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+public final class UseCaseWithClassScopeTypeVariableAsDirectReturnType<T> {
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+    @SuppressWarnings("unchecked")
+    public T method() {
+        return (T) "foo";
+    }
 }

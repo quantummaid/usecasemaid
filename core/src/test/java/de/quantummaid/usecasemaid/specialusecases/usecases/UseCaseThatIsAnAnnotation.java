@@ -19,12 +19,8 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.specialusecases.usecases;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
-
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+public @interface UseCaseThatIsAnAnnotation {
+    String method();
 }

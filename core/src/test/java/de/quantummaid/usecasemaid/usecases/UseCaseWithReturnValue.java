@@ -19,12 +19,11 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.usecases;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+public final class UseCaseWithReturnValue {
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+    public MyDto execute() {
+        return MyDto.myDto("a", "b", "c");
+    }
 }

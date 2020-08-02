@@ -24,13 +24,11 @@ package de.quantummaid.usecasemaid;
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
-import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 import de.quantummaid.usecasemaid.usecases.Transaction;
 import de.quantummaid.usecasemaid.usecases.UseCaseWithTransaction;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import static de.quantummaid.injectmaid.ReusePolicy.SINGLETON;
@@ -69,7 +67,7 @@ public final class DependencySpecs {
                 )
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
-                    public List<SideEffectInstance<?>> executeUseCase(final InvocationId invocationId,
+                    public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
                                                                       final InjectMaid injector,
                                                                       final UseCaseExecution useCaseExecution) {
                         final InjectMaid scopedInjector = injector.enterScope(InvocationId.class, invocationId);

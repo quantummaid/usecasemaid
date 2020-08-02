@@ -19,36 +19,30 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.sideeffects;
+package de.quantummaid.usecasemaid;
 
-import de.quantummaid.reflectmaid.ResolvedType;
-import de.quantummaid.usecasemaid.sideeffects.collector.CollectorInstance;
+import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
-import java.util.Map;
-
-import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("java:S1452")
-public final class SideEffectsSystem {
-    private final Map<ResolvedType, SideEffectRegistration> sideEffectRegistrations;
+public final class ResultAndSideEffects {
+    private final UseCaseResult result;
+    private final List<SideEffectInstance<?>> sideEffects;
 
-    public static SideEffectsSystem sideEffectsSystem(final Map<ResolvedType, SideEffectRegistration> sideEffectRegistrations) {
-        return new SideEffectsSystem(sideEffectRegistrations);
+    public static ResultAndSideEffects resultAndSideEffects(final UseCaseResult result,
+                                                            final List<SideEffectInstance<?>> sideEffects) {
+        return new ResultAndSideEffects(result, sideEffects);
     }
 
-    public void execute(final SideEffectInstance<?> sideEffect) {
-        final ResolvedType type = sideEffect.type();
-        final SideEffectRegistration registration = this.sideEffectRegistrations.get(type);
-        registration.executor().execute(sideEffect.sideEffect());
+    public UseCaseResult result() {
+        return result;
     }
 
-    public List<CollectorInstance<?, ?>> createCollectorInstances() {
-        return sideEffectRegistrations.values().stream()
-                .map(CollectorInstance::createInstance)
-                .collect(toList());
+    public List<SideEffectInstance<?>> sideEffects() {
+        return sideEffects;
     }
 }

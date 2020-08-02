@@ -19,12 +19,21 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.givenwhenthen;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+import de.quantummaid.usecasemaid.UseCaseMaid;
+import de.quantummaid.usecasemaid.UseCaseResult;
+import lombok.Getter;
+import lombok.Setter;
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+public final class TestData {
+    @Getter
+    @Setter
+    private UseCaseMaid useCaseMaid;
+    @Getter
+    @Setter
+    private Exception initializationException;
+    @Getter
+    @Setter
+    private UseCaseResult returnValue;
 }

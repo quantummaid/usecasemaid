@@ -35,11 +35,15 @@ import lombok.RequiredArgsConstructor;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import static de.quantummaid.usecasemaid.InvocationId.randomInvocationId;
+import static de.quantummaid.usecasemaid.UseCaseResult.error;
 import static de.quantummaid.usecasemaid.UseCaseRoute.useCaseRoute;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("java:S1181")
 public final class UseCaseMaid {
     private final UseCases useCases;
     private final InjectMaid instantiator;
@@ -63,38 +67,53 @@ public final class UseCaseMaid {
                 executionDriver);
     }
 
-    public void invoke(final String route,
-                       final Map<String, Object> input) {
-        final InvocationId invocationId = InvocationId.randomInvocationId();
-        invoke(route, input, invocationId);
+    public UseCaseResult invoke(final String route,
+                                final Map<String, Object> input) {
+        final InvocationId invocationId = randomInvocationId();
+        return invoke(route, input, invocationId);
     }
 
-    public void invoke(final String route,
-                       final Map<String, Object> input,
-                       final InvocationId invocationId) {
+    public UseCaseResult invoke(final String route,
+                                final Map<String, Object> input,
+                                final InvocationId invocationId) {
         final UseCaseMethod useCaseMethod = useCases.forRoute(useCaseRoute(route));
-        final List<SideEffectInstance<?>> sideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
+        final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
             final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances();
-
             final ResolvedType objectType = useCaseMethod.useCaseClass();
             final Object useCase = scopedInjector.getInstance(objectType);
             final Map<String, Object> parameters = serializerAndDeserializer
                     .deserializeParameters(input, useCaseMethod, injector ->
                             collectorInstances.forEach(instance ->
                                     injector.put(instance.collectorType(), instance.collectorInstance())));
-
-            try {
-                useCaseMethod.invoke(useCase, parameters);
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            return collectorInstances.stream()
+            final UseCaseResult result = invokeMethod(useCaseMethod, useCase, parameters);
+            final List<SideEffectInstance<?>> collectedSideEffects = collectorInstances.stream()
                     .map(CollectorInstance::collectInstances)
                     .flatMap(Collection::stream)
                     .collect(toList());
+            return ResultAndSideEffects.resultAndSideEffects(result, collectedSideEffects);
         });
 
+        final List<SideEffectInstance<?>> sideEffects = resultAndSideEffects.sideEffects();
         executionDriver.executeSideEffects(invocationId, sideEffects, instantiator, sideEffectsSystem);
+
+        return resultAndSideEffects.result();
+    }
+
+    private UseCaseResult invokeMethod(final UseCaseMethod useCaseMethod,
+                                       final Object useCase,
+                                       final Map<String, Object> parameters) {
+        final Optional<Object> invocationResult;
+        try {
+            invocationResult = useCaseMethod.invoke(useCase, parameters);
+        } catch (final Throwable e) {
+            return error(e);
+        }
+        return invocationResult
+                .map(returnValue -> {
+                    final ResolvedType returnType = useCaseMethod.returnType().orElseThrow();
+                    return serializerAndDeserializer.serializeReturnValue(returnValue, returnType);
+                })
+                .map(UseCaseResult::successfulReturnValue)
+                .orElseGet(UseCaseResult::successfulVoid);
     }
 }

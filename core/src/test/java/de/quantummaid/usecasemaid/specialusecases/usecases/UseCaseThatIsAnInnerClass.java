@@ -19,12 +19,21 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.specialusecases.usecases;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+public final class UseCaseThatIsAnInnerClass {
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+    public class NonStaticInnerClass {
+
+        public String method() {
+            return "method";
+        }
+    }
+
+    public static class StaticInnerClass {
+
+        public String method() {
+            return "method";
+        }
+    }
 }

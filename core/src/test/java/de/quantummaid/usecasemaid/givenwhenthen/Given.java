@@ -19,35 +19,34 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.serializing;
+package de.quantummaid.usecasemaid.givenwhenthen;
 
-import de.quantummaid.mapmaid.MapMaid;
-import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
+import de.quantummaid.usecasemaid.UseCaseMaid;
 import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-import java.util.Map;
+import java.util.function.Supplier;
 
-@ToString
-@EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public class MapMaidDeserializer {
-    private final TypeIdentifier typeIdentifier;
+public final class Given {
+    private final Supplier<UseCaseMaid> useCaseMaidSupplier;
 
-    public static MapMaidDeserializer mapMaidDeserializer(final TypeIdentifier typeIdentifier) {
-        return new MapMaidDeserializer(typeIdentifier);
+    public static Given given(final Supplier<UseCaseMaid> useCaseMaid) {
+        return new Given(useCaseMaid);
     }
 
-    public Map<String, Object> deserializeParameters(final Map<String, Object> input,
-                                                     final MapMaid mapMaid) {
-        return mapMaid.deserializer().deserializeFromUniversalObject(
-                input,
-                this.typeIdentifier,
-                injector -> {
-                }
-        );
+    public static Given given(final UseCaseMaid useCaseMaid) {
+        return given(() -> useCaseMaid);
+    }
+
+    public When when() {
+        final TestData testData = new TestData();
+        try {
+            final UseCaseMaid useCaseMaid = useCaseMaidSupplier.get();
+            testData.setUseCaseMaid(useCaseMaid);
+        } catch (final Exception e) {
+            testData.setInitializationException(e);
+        }
+        return When.when(testData);
     }
 }
-

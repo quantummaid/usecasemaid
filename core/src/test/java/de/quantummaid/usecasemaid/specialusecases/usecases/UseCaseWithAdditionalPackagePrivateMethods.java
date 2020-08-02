@@ -19,12 +19,19 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.specialusecases.usecases;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+public final class UseCaseWithAdditionalPackagePrivateMethods {
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+    String method1() {
+        return "method1";
+    }
+
+    public String method2() {
+        return "method2";
+    }
+
+    String method3() {
+        return "method3";
+    }
 }

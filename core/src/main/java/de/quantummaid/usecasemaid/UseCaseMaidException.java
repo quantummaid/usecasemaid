@@ -19,12 +19,24 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+public final class UseCaseMaidException extends RuntimeException {
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+    private UseCaseMaidException(final String message,
+                                 final Throwable cause) {
+        super(message, cause);
+    }
+
+    public static UseCaseMaidException useCaseMaidException(final Throwable cause) {
+        return new UseCaseMaidException(null, cause);
+    }
+
+    public static UseCaseMaidException useCaseMaidException(final String message) {
+        return new UseCaseMaidException(message, null);
+    }
+
+    public static UseCaseMaidException useCaseMaidException(final String message, final Throwable cause) {
+        return new UseCaseMaidException(message, cause);
+    }
 }

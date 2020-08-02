@@ -34,6 +34,7 @@ import static de.quantummaid.usecasemaid.sideeffects.collector.ListSideEffectsCo
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("java:S1452")
 public final class SideEffectRegistration {
     private final GenericType<?> sideEffectType;
     private final SideEffectsCollector<?, ?> sideEffectsCollector;

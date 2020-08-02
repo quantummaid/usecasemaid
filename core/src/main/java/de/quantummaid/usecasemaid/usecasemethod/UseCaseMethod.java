@@ -24,6 +24,7 @@ package de.quantummaid.usecasemaid.usecasemethod;
 import de.quantummaid.reflectmaid.ClassType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.reflectmaid.resolver.ResolvedMethod;
+import de.quantummaid.usecasemaid.UseCaseMaidException;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static de.quantummaid.usecasemaid.usecasemethod.MethodInvocationException.methodInvocationException;
+import static de.quantummaid.usecasemaid.UseCaseMaidException.useCaseMaidException;
 import static java.lang.String.format;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.util.Optional.ofNullable;
@@ -44,6 +45,7 @@ import static java.util.stream.Collectors.toList;
 @ToString
 @EqualsAndHashCode
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@SuppressWarnings("java:S112")
 public final class UseCaseMethod {
     public static final Collection<String> NOT_ALLOWED_USECASE_PUBLIC_METHODS = Set.of("equals", "hashCode", "toString", "clone", "finalize", "wait", "getClass", "notify", "notifyAll");
 
@@ -60,18 +62,6 @@ public final class UseCaseMethod {
 
     public ResolvedType useCaseClass() {
         return useCaseClass;
-    }
-
-    public boolean isSingleParameterUseCase() {
-        return parameters.asMap().size() == 1;
-    }
-
-    public String singleParameterName() {
-        return parameterNames().get(0);
-    }
-
-    public List<String> parameterNames() {
-        return parameters.names();
     }
 
     public Map<String, ResolvedType> parameters() {
@@ -105,6 +95,19 @@ public final class UseCaseMethod {
                 throw methodInvocationException(useCase.getClass(), useCase, lowLevelMethod, parameters, e);
             }
         }
+    }
+
+    private static UseCaseMaidException methodInvocationException(final Class<?> useCaseClass,
+                                                                  final Object useCase,
+                                                                  final Method useCaseMethod,
+                                                                  final Map<String, Object> parameters,
+                                                                  final Exception cause) {
+        final String message = String.format("Could not call method '%s' of class '%s' with arg '%s' on object '%s'",
+                useCaseMethod,
+                useCaseClass,
+                parameters,
+                useCase);
+        return useCaseMaidException(message, cause);
     }
 
     private boolean isDeclaredByMethod(final Throwable cause, final Method method) {

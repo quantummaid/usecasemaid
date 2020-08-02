@@ -24,7 +24,6 @@ package de.quantummaid.usecasemaid;
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
-import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 import de.quantummaid.usecasemaid.usecases.*;
 import org.junit.jupiter.api.Test;
 
@@ -32,7 +31,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static de.quantummaid.usecasemaid.ResultAndSideEffects.resultAndSideEffects;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
+import static de.quantummaid.usecasemaid.UseCaseResult.successfulVoid;
 import static de.quantummaid.usecasemaid.sideeffects.SideEffectInstance.sideEffectInstance;
 import static de.quantummaid.usecasemaid.usecases.MySideEffect.mySideEffect;
 import static java.util.Collections.emptyList;
@@ -88,10 +89,10 @@ public final class UseCaseMaidSpecs {
                 .invoking("test", UseCaseWithoutParameters.class)
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
-                    public List<SideEffectInstance<?>> executeUseCase(final InvocationId invocationId,
-                                                                      final InjectMaid injector,
-                                                                      final UseCaseExecution useCaseExecution) {
-                        return emptyList();
+                    public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
+                                                               final InjectMaid injector,
+                                                               final UseCaseExecution useCaseExecution) {
+                        return resultAndSideEffects(successfulVoid(), emptyList());
                     }
                 })
                 .build();
@@ -110,12 +111,12 @@ public final class UseCaseMaidSpecs {
                 })
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
-                    public List<SideEffectInstance<?>> executeUseCase(final InvocationId invocationId,
+                    public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
                                                                       final InjectMaid injector,
                                                                       final UseCaseExecution useCaseExecution) {
-                        return List.of(
+                        return resultAndSideEffects(successfulVoid(), List.of(
                                 sideEffectInstance(mySideEffect("the overwritten side effect"))
-                        );
+                        ));
                     }
                 })
                 .build();

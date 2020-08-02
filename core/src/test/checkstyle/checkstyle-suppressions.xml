@@ -25,5 +25,6 @@
         "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
 <suppressions>
     <suppress checks="VisibilityModifier|StaticVariableName|ExplicitInitialization" files="UseCaseWithoutParameters|UseCaseWithParameters"/>
-    <suppress checks="IllegalCatch" files="UseCaseMaid"/>
+    <suppress checks="IllegalCatch" files="UseCaseMaid|Given"/>
+    <suppress checks="FileLength|MethodCount" files="SpecialUseCaseSpecs"/>
 </suppressions>

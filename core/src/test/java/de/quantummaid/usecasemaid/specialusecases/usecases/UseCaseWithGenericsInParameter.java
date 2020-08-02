@@ -19,12 +19,16 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid.driver;
+package de.quantummaid.usecasemaid.specialusecases.usecases;
 
-import de.quantummaid.injectmaid.InjectMaid;
-import de.quantummaid.usecasemaid.ResultAndSideEffects;
+import java.util.List;
 
-@SuppressWarnings("java:S1452")
-public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+import static java.util.stream.Collectors.joining;
+
+public final class UseCaseWithGenericsInParameter {
+
+    public String act(final List<String> parameter) {
+        return parameter.stream()
+                .collect(joining(", ", "{", "}"));
+    }
 }
