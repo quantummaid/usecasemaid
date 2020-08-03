@@ -21,6 +21,7 @@
 
 package de.quantummaid.usecasemaid.givenwhenthen;
 
+import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.usecasemaid.UseCaseMaid;
 import de.quantummaid.usecasemaid.UseCaseResult;
 import lombok.AccessLevel;
@@ -40,17 +41,24 @@ public final class When {
         return Then.then(testData);
     }
 
-    public Then useCaseIsInvoked(final String route) {
-        final UseCaseMaid useCaseMaid = testData.getUseCaseMaid();
-        final UseCaseResult result = useCaseMaid.invoke(route, Map.of());
-        testData.setReturnValue(result);
-        return Then.then(testData);
+    public Then useCaseIsInvoked(final Class<?> useCase) {
+        return useCaseIsInvoked(useCase, Map.of());
     }
 
-    public Then useCaseIsInvoked(final String route,
+    public Then useCaseIsInvoked(final GenericType<?> useCase) {
+        return useCaseIsInvoked(useCase, Map.of());
+    }
+
+    public Then useCaseIsInvoked(final Class<?> useCase,
+                                 final Map<String, Object> body) {
+        final GenericType<?> genericType = GenericType.genericType(useCase);
+        return useCaseIsInvoked(genericType, body);
+    }
+
+    public Then useCaseIsInvoked(final GenericType<?> useCase,
                                  final Map<String, Object> body) {
         final UseCaseMaid useCaseMaid = testData.getUseCaseMaid();
-        final UseCaseResult result = useCaseMaid.invoke(route, body);
+        final UseCaseResult result = useCaseMaid.invoke(useCase, body);
         testData.setReturnValue(result);
         return Then.then(testData);
     }

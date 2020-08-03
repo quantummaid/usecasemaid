@@ -47,18 +47,18 @@ public final class UseCaseMaidSpecs {
     public void useCaseWithoutParametersCanBeInvoked() {
         UseCaseWithoutParameters.INVOCATION_COUNT = 0;
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithoutParameters.class)
+                .invoking(UseCaseWithoutParameters.class)
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithoutParameters.class, Map.of());
         assertThat(UseCaseWithoutParameters.INVOCATION_COUNT, is(1));
     }
 
     @Test
     public void useCaseWithParametersCanBeInvoked() {
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithParameters.class)
+                .invoking(UseCaseWithParameters.class)
                 .build();
-        useCaseMaid.invoke("test", Map.of(
+        useCaseMaid.invoke(UseCaseWithParameters.class, Map.of(
                 "myDto", Map.of(
                         "field1", "a",
                         "field2", "b",
@@ -72,13 +72,13 @@ public final class UseCaseMaidSpecs {
     public void useCaseCanHaveSideEffects() {
         final List<String> executedSideEffects = new ArrayList<>();
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithSideEffects.class)
+                .invoking(UseCaseWithSideEffects.class)
                 .withSideEffects(MySideEffect.class, sideEffect -> {
                     final String value = sideEffect.getValue();
                     executedSideEffects.add(value);
                 })
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithSideEffects.class, Map.of());
         assertThat(executedSideEffects, contains("the correct side effect"));
     }
 
@@ -86,7 +86,7 @@ public final class UseCaseMaidSpecs {
     public void businessLogicExecutionCanBeControlledByDriver() {
         UseCaseWithoutParameters.INVOCATION_COUNT = 0;
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithoutParameters.class)
+                .invoking(UseCaseWithoutParameters.class)
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
@@ -96,7 +96,7 @@ public final class UseCaseMaidSpecs {
                     }
                 })
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithoutParameters.class, Map.of());
         assertThat(UseCaseWithoutParameters.INVOCATION_COUNT, is(0));
     }
 
@@ -104,7 +104,7 @@ public final class UseCaseMaidSpecs {
     public void sideEffectsCanBeProvidedByDriver() {
         final List<String> executedSideEffects = new ArrayList<>();
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithSideEffects.class)
+                .invoking(UseCaseWithSideEffects.class)
                 .withSideEffects(MySideEffect.class, sideEffect -> {
                     final String value = sideEffect.getValue();
                     executedSideEffects.add(value);
@@ -120,7 +120,7 @@ public final class UseCaseMaidSpecs {
                     }
                 })
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithSideEffects.class, Map.of());
         assertThat(executedSideEffects, contains("the overwritten side effect"));
     }
 }

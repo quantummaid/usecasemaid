@@ -22,6 +22,7 @@
 package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.InjectMaid;
+import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
@@ -37,9 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.usecasemaid.InvocationId.randomInvocationId;
 import static de.quantummaid.usecasemaid.UseCaseResult.error;
-import static de.quantummaid.usecasemaid.UseCaseRoute.useCaseRoute;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -67,25 +68,38 @@ public final class UseCaseMaid {
                 executionDriver);
     }
 
-    public UseCaseResult invoke(final String route,
+    public UseCaseResult invoke(final Class<?> useCase,
                                 final Map<String, Object> input) {
         final InvocationId invocationId = randomInvocationId();
-        return invoke(route, input, invocationId);
+        return invoke(useCase, input, invocationId);
     }
 
-    public UseCaseResult invoke(final String route,
+    public UseCaseResult invoke(final GenericType<?> useCase,
+                                final Map<String, Object> input) {
+        final InvocationId invocationId = randomInvocationId();
+        return invoke(useCase, input, invocationId);
+    }
+
+    public UseCaseResult invoke(final Class<?> useCase,
                                 final Map<String, Object> input,
                                 final InvocationId invocationId) {
-        final UseCaseMethod useCaseMethod = useCases.forRoute(useCaseRoute(route));
+        final GenericType<?> genericType = genericType(useCase);
+        return invoke(genericType, input, invocationId);
+    }
+
+    public UseCaseResult invoke(final GenericType<?> useCase,
+                                final Map<String, Object> input,
+                                final InvocationId invocationId) {
+        final UseCaseMethod useCaseMethod = useCases.forUseCase(useCase);
         final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
             final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances();
             final ResolvedType objectType = useCaseMethod.useCaseClass();
-            final Object useCase = scopedInjector.getInstance(objectType);
+            final Object useCaseInstance = scopedInjector.getInstance(objectType);
             final Map<String, Object> parameters = serializerAndDeserializer
                     .deserializeParameters(input, useCaseMethod, injector ->
                             collectorInstances.forEach(instance ->
                                     injector.put(instance.collectorType(), instance.collectorInstance())));
-            final UseCaseResult result = invokeMethod(useCaseMethod, useCase, parameters);
+            final UseCaseResult result = invokeMethod(useCaseMethod, useCaseInstance, parameters);
             final List<SideEffectInstance<?>> collectedSideEffects = collectorInstances.stream()
                     .map(CollectorInstance::collectInstances)
                     .flatMap(Collection::stream)

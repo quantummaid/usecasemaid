@@ -21,6 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
+import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,13 +30,13 @@ import java.util.Map;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCases {
-    private final Map<UseCaseRoute, UseCaseMethod> useCases;
+    private final Map<GenericType<?>, UseCaseMethod> useCases;
 
-    public static UseCases useCases(final Map<UseCaseRoute, UseCaseMethod> useCases) {
+    public static UseCases useCases(final Map<GenericType<?>, UseCaseMethod> useCases) {
         return new UseCases(useCases);
     }
 
-    public UseCaseMethod forRoute(final UseCaseRoute route) {
-        return useCases.get(route);
+    public UseCaseMethod forUseCase(final GenericType<?> useCase) {
+        return useCases.get(useCase);
     }
 }
