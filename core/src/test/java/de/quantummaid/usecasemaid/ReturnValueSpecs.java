@@ -37,10 +37,10 @@ public final class ReturnValueSpecs {
     public void useCaseCanReturnValue() {
         given(
                 aUseCaseMaid()
-                        .invoking("test", UseCaseWithReturnValue.class)
+                        .invoking(UseCaseWithReturnValue.class)
                         .build()
         )
-                .when().useCaseIsInvoked("test")
+                .when().useCaseIsInvoked(UseCaseWithReturnValue.class)
                 .theReturnValueWas(
                         Map.of(
                                 "field1", "a",
@@ -53,10 +53,10 @@ public final class ReturnValueSpecs {
     public void useCaseMaidReturnsCaughtRuntimeException() {
         given(
                 aUseCaseMaid()
-                        .invoking("test", RuntimeExceptionThrowingUseCase.class)
+                        .invoking(RuntimeExceptionThrowingUseCase.class)
                         .build()
         )
-                .when().useCaseIsInvoked("test")
+                .when().useCaseIsInvoked(RuntimeExceptionThrowingUseCase.class)
                 .theUseCaseThrewRuntimeExceptionWithMessage("from the usecase");
     }
 
@@ -64,10 +64,10 @@ public final class ReturnValueSpecs {
     public void useCaseMaidReturnsCaughtCheckedException() {
         given(
                 aUseCaseMaid()
-                        .invoking("test", CheckedExceptionThrowingUseCase.class)
+                        .invoking(CheckedExceptionThrowingUseCase.class)
                         .build()
         )
-                .when().useCaseIsInvoked("test")
+                .when().useCaseIsInvoked(CheckedExceptionThrowingUseCase.class)
                 .theUseCaseThrewCheckedExceptionWithMessage("from the usecase");
     }
 }

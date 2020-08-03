@@ -46,11 +46,11 @@ public final class DependencySpecs {
         final Map<String, String> database = new LinkedHashMap<>();
 
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithTransaction.class)
+                .invoking(UseCaseWithTransaction.class)
                 .withInvocationScopedDependencies(builder ->
                         builder.withCustomType(Transaction.class, () -> transactionOnDatabase(database), SINGLETON))
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithTransaction.class, Map.of());
 
         assertThat(database, hasEntry("foo", "bar"));
         assertThat(database.size(), is(1));
@@ -61,15 +61,15 @@ public final class DependencySpecs {
         final Map<String, String> database = new LinkedHashMap<>();
 
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithTransaction.class)
+                .invoking(UseCaseWithTransaction.class)
                 .withInvocationScopedDependencies(builder ->
                         builder.withCustomType(Transaction.class, () -> transactionOnDatabase(database), SINGLETON)
                 )
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
-                                                                      final InjectMaid injector,
-                                                                      final UseCaseExecution useCaseExecution) {
+                                                               final InjectMaid injector,
+                                                               final UseCaseExecution useCaseExecution) {
                         final InjectMaid scopedInjector = injector.enterScope(InvocationId.class, invocationId);
                         final Transaction transaction = scopedInjector.getInstance(Transaction.class);
                         transaction.add("a", "b");
@@ -77,7 +77,7 @@ public final class DependencySpecs {
                     }
                 })
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithTransaction.class, Map.of());
 
         assertThat(database, hasEntry("foo", "bar"));
         assertThat(database, hasEntry("a", "b"));
@@ -89,11 +89,11 @@ public final class DependencySpecs {
         final Map<String, String> database = new LinkedHashMap<>();
 
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
-                .invoking("test", UseCaseWithTransaction.class)
+                .invoking(UseCaseWithTransaction.class)
                 .withDependencies(builder -> builder.withConstant(genericType(Map.class, String.class, String.class), database))
                 .withInvocationScopedDependencies(builder -> builder.withType(Transaction.class, SINGLETON))
                 .build();
-        useCaseMaid.invoke("test", Map.of());
+        useCaseMaid.invoke(UseCaseWithTransaction.class, Map.of());
 
         assertThat(database, hasEntry("foo", "bar"));
         assertThat(database.size(), is(1));

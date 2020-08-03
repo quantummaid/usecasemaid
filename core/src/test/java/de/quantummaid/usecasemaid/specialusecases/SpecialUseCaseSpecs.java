@@ -37,7 +37,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithTwoMethods() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithTwoMethods.class)
+                        .invoking(UseCaseWithTwoMethods.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -48,7 +48,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithoutPublicMethods() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithoutPublicMethods.class)
+                        .invoking(UseCaseWithoutPublicMethods.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -59,10 +59,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithAdditionalPackagePrivateMethods() {
         given(
                 aUseCaseMaid()
-                        .invoking("/", UseCaseWithAdditionalPackagePrivateMethods.class)
+                        .invoking(UseCaseWithAdditionalPackagePrivateMethods.class)
                         .build()
         )
-                .when().useCaseIsInvoked("/")
+                .when().useCaseIsInvoked(UseCaseWithAdditionalPackagePrivateMethods.class)
                 .theReturnValueWas("method2");
     }
 
@@ -70,7 +70,7 @@ public final class SpecialUseCaseSpecs {
     public void packagePrivateUseCaseWithPublicMethod() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", PackagePrivateUseCaseWithPublicMethod.class)
+                        .invoking(PackagePrivateUseCaseWithPublicMethod.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -82,7 +82,7 @@ public final class SpecialUseCaseSpecs {
     public void packagePrivateUseCaseWithPackagePrivateMethod() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", PackagePrivateUseCaseWithPackagePrivateMethod.class)
+                        .invoking(PackagePrivateUseCaseWithPackagePrivateMethod.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -94,7 +94,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsDirectReturnType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithClassScopeTypeVariableAsDirectReturnType.class)
+                        .invoking(UseCaseWithClassScopeTypeVariableAsDirectReturnType.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -107,10 +107,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsDirectReturnTypeWithGenericType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", genericType(UseCaseWithClassScopeTypeVariableAsDirectReturnType.class, String.class))
+                        .invoking(genericType(UseCaseWithClassScopeTypeVariableAsDirectReturnType.class, String.class))
                         .build()
         )
-                .when().useCaseIsInvoked("/")
+                .when().useCaseIsInvoked(genericType(UseCaseWithClassScopeTypeVariableAsDirectReturnType.class, String.class))
                 .theReturnValueWas("foo");
     }
 
@@ -118,7 +118,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsIndirectReturnType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithClassScopeTypeVariableAsIndirectReturnType.class)
+                        .invoking(UseCaseWithClassScopeTypeVariableAsIndirectReturnType.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -131,10 +131,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsIndirectReturnTypeWithGenericType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", genericType(UseCaseWithClassScopeTypeVariableAsIndirectReturnType.class, String.class))
+                        .invoking(genericType(UseCaseWithClassScopeTypeVariableAsIndirectReturnType.class, String.class))
                         .build()
         )
-                .when().useCaseIsInvoked("/")
+                .when().useCaseIsInvoked(genericType(UseCaseWithClassScopeTypeVariableAsIndirectReturnType.class, String.class))
                 .theReturnValueWas(List.of("a", "b", "c"));
     }
 
@@ -142,7 +142,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsDirectParameter() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithClassScopeTypeVariableAsDirectParameter.class)
+                        .invoking(UseCaseWithClassScopeTypeVariableAsDirectParameter.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -154,10 +154,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsDirectParameterRegisteredAsGenericType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", genericType(UseCaseWithClassScopeTypeVariableAsDirectParameter.class, String.class))
+                        .invoking(genericType(UseCaseWithClassScopeTypeVariableAsDirectParameter.class, String.class))
                         .build()
         )
-                .when().useCaseIsInvoked("/", Map.of("t", "foo"))
+                .when().useCaseIsInvoked(genericType(UseCaseWithClassScopeTypeVariableAsDirectParameter.class, String.class), Map.of("t", "foo"))
                 .theReturnValueWas("foo");
     }
 
@@ -165,7 +165,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsIndirectParameter() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithClassScopeTypeVariableAsIndirectParameter.class)
+                        .invoking(UseCaseWithClassScopeTypeVariableAsIndirectParameter.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -178,10 +178,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithClassScopeTypeVariableAsIndirectParameterWithGenericType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", genericType(UseCaseWithClassScopeTypeVariableAsIndirectParameter.class, String.class))
+                        .invoking(genericType(UseCaseWithClassScopeTypeVariableAsIndirectParameter.class, String.class))
                         .build()
         )
-                .when().useCaseIsInvoked("/", Map.of("list", List.of("a", "b", "c")))
+                .when().useCaseIsInvoked(genericType(UseCaseWithClassScopeTypeVariableAsIndirectParameter.class, String.class), Map.of("list", List.of("a", "b", "c")))
                 .theReturnValueWas("{a, b, c}");
     }
 
@@ -189,7 +189,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithMethodScopeTypeVariableAsDirectReturnType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithMethodScopeTypeVariableAsDirectReturnType.class)
+                        .invoking(UseCaseWithMethodScopeTypeVariableAsDirectReturnType.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -202,7 +202,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithMethodScopeTypeVariableAsIndirectReturnType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithMethodScopeTypeVariableAsIndirectReturnType.class)
+                        .invoking(UseCaseWithMethodScopeTypeVariableAsIndirectReturnType.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -216,7 +216,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithMethodScopeTypeVariableAsDirectParameter() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithMethodScopeTypeVariableAsDirectParameter.class)
+                        .invoking(UseCaseWithMethodScopeTypeVariableAsDirectParameter.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -229,7 +229,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithMethodScopeTypeVariableAsIndirectParameter() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithMethodScopeTypeVariableAsIndirectParameter.class)
+                        .invoking(UseCaseWithMethodScopeTypeVariableAsIndirectParameter.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -243,7 +243,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithWildcardInReturnType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithWildcardInReturnType.class)
+                        .invoking(UseCaseWithWildcardInReturnType.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -267,10 +267,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithGenericsInReturnType() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithGenericsInReturnType.class)
+                        .invoking(UseCaseWithGenericsInReturnType.class)
                         .build()
         )
-                .when().useCaseIsInvoked("/")
+                .when().useCaseIsInvoked(UseCaseWithGenericsInReturnType.class)
                 .theReturnValueWas(List.of("a", "b", "c"));
     }
 
@@ -278,10 +278,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithGenericsInParameter() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithGenericsInParameter.class)
+                        .invoking(UseCaseWithGenericsInParameter.class)
                         .build()
         )
-                .when().useCaseIsInvoked("/", Map.of("parameter", List.of("a", "b", "c")))
+                .when().useCaseIsInvoked(UseCaseWithGenericsInParameter.class, Map.of("parameter", List.of("a", "b", "c")))
                 .theReturnValueWas("{a, b, c}");
     }
 
@@ -289,7 +289,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseWithWildcardInParameter() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseWithWildcardInParameter.class)
+                        .invoking(UseCaseWithWildcardInParameter.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -313,10 +313,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAnInterface() {
         given(
                 aUseCaseMaid()
-                        .invoking("/", UseCaseThatIsAnInterface.class)
+                        .invoking(UseCaseThatIsAnInterface.class)
                         .build()
         )
-                .when().useCaseIsInvoked("/")
+                .when().useCaseIsInvoked(UseCaseThatIsAnInterface.class)
                 .theReturnValueWas("method");
     }
 
@@ -324,10 +324,10 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAnAbstractClass() {
         given(
                 aUseCaseMaid()
-                        .invoking("/", UseCaseThatIsAnAbstractClass.class)
+                        .invoking(UseCaseThatIsAnAbstractClass.class)
                         .build()
         )
-                .when().useCaseIsInvoked("/")
+                .when().useCaseIsInvoked(UseCaseThatIsAnAbstractClass.class)
                 .theReturnValueWas("method1");
     }
 
@@ -335,7 +335,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAnEnum() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseThatIsAnEnum.class)
+                        .invoking(UseCaseThatIsAnEnum.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -348,7 +348,7 @@ public final class SpecialUseCaseSpecs {
         }.getClass();
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", useCaseClass)
+                        .invoking(useCaseClass)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -359,7 +359,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAnInnerClass() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseThatIsAnInnerClass.NonStaticInnerClass.class)
+                        .invoking(UseCaseThatIsAnInnerClass.NonStaticInnerClass.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -371,7 +371,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAStaticInnerClass() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseThatIsAnInnerClass.StaticInnerClass.class)
+                        .invoking(UseCaseThatIsAnInnerClass.StaticInnerClass.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -389,7 +389,7 @@ public final class SpecialUseCaseSpecs {
 
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCase.class)
+                        .invoking(UseCase.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -401,7 +401,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAPrimitive() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", int.class)
+                        .invoking(int.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -412,7 +412,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAnAnnotation() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", UseCaseThatIsAnAnnotation.class)
+                        .invoking(UseCaseThatIsAnAnnotation.class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()
@@ -424,7 +424,7 @@ public final class SpecialUseCaseSpecs {
     public void useCaseThatIsAnArray() {
         given(
                 () -> aUseCaseMaid()
-                        .invoking("/", String[].class)
+                        .invoking(String[].class)
                         .build()
         )
                 .when().useCaseMaidIsInitialized()

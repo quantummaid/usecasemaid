@@ -45,7 +45,6 @@ import java.util.Map;
 
 import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.reflectmaid.validators.NotNullValidator.validateNotNull;
-import static de.quantummaid.usecasemaid.UseCaseRoute.useCaseRoute;
 import static de.quantummaid.usecasemaid.UseCases.useCases;
 import static de.quantummaid.usecasemaid.driver.SimpleExecutionDriver.simpleExecutionDriver;
 import static de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer.serializationAndDeserialization;
@@ -54,7 +53,7 @@ import static de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod.useCaseMeth
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCaseMaidBuilder {
-    private final Map<String, GenericType<?>> useCases = new LinkedHashMap<>();
+    private final List<GenericType<?>> useCases = new ArrayList<>();
     private final List<SideEffectRegistration> sideEffectRegistrations = new ArrayList<>();
     private ExecutionDriver executionDriver = simpleExecutionDriver();
     private final List<InjectMaidModule> dependencies = new ArrayList<>();
@@ -64,15 +63,13 @@ public final class UseCaseMaidBuilder {
         return new UseCaseMaidBuilder();
     }
 
-    public UseCaseMaidBuilder invoking(final String route,
-                                       final Class<?> useCase) {
+    public UseCaseMaidBuilder invoking(final Class<?> useCase) {
         final GenericType<?> genericType = genericType(useCase);
-        return invoking(route, genericType);
+        return invoking(genericType);
     }
 
-    public UseCaseMaidBuilder invoking(final String route,
-                                       final GenericType<?> useCase) {
-        useCases.put(route, useCase);
+    public UseCaseMaidBuilder invoking(final GenericType<?> useCase) {
+        useCases.add(useCase);
         return this;
     }
 
@@ -106,17 +103,17 @@ public final class UseCaseMaidBuilder {
     }
 
     public UseCaseMaid build() {
-        final Map<UseCaseRoute, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
+        final Map<GenericType<?>, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid();
         final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid();
 
         dependencies.forEach(injectMaidBuilder::withModule);
         injectMaidBuilder.withScope(InvocationId.class, builder -> {
             invocationScopedDependencies.forEach(builder::withModule);
-            useCases.forEach((route, type) -> {
+            useCases.forEach(type -> {
                 final ResolvedType resolvedType = type.toResolvedType();
                 final UseCaseMethod useCaseMethod = useCaseMethodOf(resolvedType);
-                useCaseMethods.put(useCaseRoute(route), useCaseMethod);
+                useCaseMethods.put(type, useCaseMethod);
                 UseCaseClassScanner.addMethod(useCaseMethod, mapMaidBuilder);
                 builder.withType(type);
             });
