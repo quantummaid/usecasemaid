@@ -250,8 +250,8 @@ public final class SpecialUseCaseSpecs {
                 .anExceptionHasBeenThrownDuringInitializationWithAMessageContaining("" +
                         "The following classes could not be detected properly:\n" +
                         "\n" +
-                        "?: unable to detect serializer:\n" +
-                        "no serializer detected:\n" +
+                        "?: unable to detect serialization-only:\n" +
+                        "no serialization detected:\n" +
                         "[type '?' is not supported because it contains wildcard generics (\"?\")]\n" +
                         "\n" +
                         "?:\n" +
@@ -296,8 +296,8 @@ public final class SpecialUseCaseSpecs {
                 .anExceptionHasBeenThrownDuringInitializationWithAMessageContaining("" +
                         "The following classes could not be detected properly:\n" +
                         "\n" +
-                        "?: unable to detect deserializer:\n" +
-                        "no deserializer detected:\n" +
+                        "?: unable to detect deserialization-only:\n" +
+                        "no deserialization detected:\n" +
                         "[type '?' is not supported because it contains wildcard generics (\"?\")]\n" +
                         "\n" +
                         "?:\n" +
