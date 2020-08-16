@@ -26,7 +26,7 @@
     <parent>
         <groupId>de.quantummaid.usecasemaid</groupId>
         <artifactId>usecasemaid-parent</artifactId>
-        <version>0.0.6</version>
+        <version>0.0.7</version>
     </parent>
 
     <artifactId>core</artifactId>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>de.quantummaid.reflectmaid</groupId>
             <artifactId>reflectmaid-parent</artifactId>
-            <version>0.1.32</version>
+            <version>0.1.33</version>
         </dependency>
         <dependency>
             <groupId>de.quantummaid.injectmaid</groupId>
@@ -66,7 +66,7 @@
         <dependency>
             <groupId>de.quantummaid.mapmaid</groupId>
             <artifactId>core</artifactId>
-            <version>0.9.76</version>
+            <version>0.9.78</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
