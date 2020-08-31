@@ -21,7 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.InjectMaid;
+import de.quantummaid.injectmaid.Injector;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
@@ -47,7 +47,7 @@ import static java.util.stream.Collectors.toList;
 @SuppressWarnings("java:S1181")
 public final class UseCaseMaid {
     private final UseCases useCases;
-    private final InjectMaid instantiator;
+    private final Injector instantiator;
     private final SerializerAndDeserializer serializerAndDeserializer;
     private final SideEffectsSystem sideEffectsSystem;
     private final ExecutionDriver executionDriver;
@@ -57,7 +57,7 @@ public final class UseCaseMaid {
     }
 
     static UseCaseMaid useCaseMaid(final UseCases useCases,
-                                   final InjectMaid instantiator,
+                                   final Injector instantiator,
                                    final SerializerAndDeserializer serializerAndDeserializer,
                                    final SideEffectsSystem sideEffectsSystem,
                                    final ExecutionDriver executionDriver) {

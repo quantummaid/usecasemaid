@@ -21,7 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.InjectMaid;
+import de.quantummaid.injectmaid.Injector;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.Transaction;
@@ -68,9 +68,9 @@ public final class DependencySpecs {
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
-                                                               final InjectMaid injector,
+                                                               final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
-                        final InjectMaid scopedInjector = injector.enterScope(InvocationId.class, invocationId);
+                        final Injector scopedInjector = injector.enterScope(InvocationId.class, invocationId);
                         final Transaction transaction = scopedInjector.getInstance(Transaction.class);
                         transaction.add("a", "b");
                         return useCaseExecution.executeUseCase(scopedInjector);

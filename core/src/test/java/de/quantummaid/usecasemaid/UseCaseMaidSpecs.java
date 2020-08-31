@@ -21,7 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.InjectMaid;
+import de.quantummaid.injectmaid.Injector;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.*;
@@ -90,7 +90,7 @@ public final class UseCaseMaidSpecs {
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
-                                                               final InjectMaid injector,
+                                                               final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
                         return resultAndSideEffects(successfulVoid(), emptyList());
                     }
@@ -112,8 +112,8 @@ public final class UseCaseMaidSpecs {
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
-                                                                      final InjectMaid injector,
-                                                                      final UseCaseExecution useCaseExecution) {
+                                                               final Injector injector,
+                                                               final UseCaseExecution useCaseExecution) {
                         return resultAndSideEffects(successfulVoid(), List.of(
                                 sideEffectInstance(mySideEffect("the overwritten side effect"))
                         ));

@@ -5,12 +5,12 @@
     <parent>
         <groupId>de.quantummaid</groupId>
         <artifactId>quantummaid-opensource-parent</artifactId>
-        <version>0.9.52</version>
+        <version>0.9.54</version>
     </parent>
 
     <groupId>de.quantummaid.usecasemaid</groupId>
     <artifactId>usecasemaid-parent</artifactId>
-    <version>0.0.8</version>
+    <version>0.0.9</version>
     <packaging>pom</packaging>
 
     <name>UseCaseMaid</name>
