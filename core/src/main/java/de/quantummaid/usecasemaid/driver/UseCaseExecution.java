@@ -21,10 +21,10 @@
 
 package de.quantummaid.usecasemaid.driver;
 
-import de.quantummaid.injectmaid.InjectMaid;
+import de.quantummaid.injectmaid.Injector;
 import de.quantummaid.usecasemaid.ResultAndSideEffects;
 
 @SuppressWarnings("java:S1452")
 public interface UseCaseExecution {
-    ResultAndSideEffects executeUseCase(InjectMaid injector);
+    ResultAndSideEffects executeUseCase(Injector injector);
 }

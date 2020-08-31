@@ -23,7 +23,8 @@ package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.InjectMaidBuilder;
-import de.quantummaid.injectmaid.InjectMaidModule;
+import de.quantummaid.injectmaid.Injector;
+import de.quantummaid.injectmaid.InjectorConfiguration;
 import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.reflectmaid.GenericType;
@@ -56,8 +57,8 @@ public final class UseCaseMaidBuilder {
     private final List<GenericType<?>> useCases = new ArrayList<>();
     private final List<SideEffectRegistration> sideEffectRegistrations = new ArrayList<>();
     private ExecutionDriver executionDriver = simpleExecutionDriver();
-    private final List<InjectMaidModule> dependencies = new ArrayList<>();
-    private final List<InjectMaidModule> invocationScopedDependencies = new ArrayList<>();
+    private final List<InjectorConfiguration> dependencies = new ArrayList<>();
+    private final List<InjectorConfiguration> invocationScopedDependencies = new ArrayList<>();
 
     static UseCaseMaidBuilder useCaseMaidBuilder() {
         return new UseCaseMaidBuilder();
@@ -92,12 +93,12 @@ public final class UseCaseMaidBuilder {
         return this;
     }
 
-    public UseCaseMaidBuilder withDependencies(final InjectMaidModule module) {
+    public UseCaseMaidBuilder withDependencies(final InjectorConfiguration module) {
         dependencies.add(module);
         return this;
     }
 
-    public UseCaseMaidBuilder withInvocationScopedDependencies(final InjectMaidModule module) {
+    public UseCaseMaidBuilder withInvocationScopedDependencies(final InjectorConfiguration module) {
         invocationScopedDependencies.add(module);
         return this;
     }
@@ -107,9 +108,9 @@ public final class UseCaseMaidBuilder {
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid();
         final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid();
 
-        dependencies.forEach(injectMaidBuilder::withModule);
+        dependencies.forEach(injectMaidBuilder::withConfiguration);
         injectMaidBuilder.withScope(InvocationId.class, builder -> {
-            invocationScopedDependencies.forEach(builder::withModule);
+            invocationScopedDependencies.forEach(builder::withConfiguration);
             useCases.forEach(type -> {
                 final ResolvedType resolvedType = type.toResolvedType();
                 final UseCaseMethod useCaseMethod = useCaseMethodOf(resolvedType);
@@ -128,10 +129,10 @@ public final class UseCaseMaidBuilder {
         final SideEffectsSystem sideEffectsSystem = SideEffectsSystem.sideEffectsSystem(sideEffectRegistrationMap);
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
-        final InjectMaid injectMaid = injectMaidBuilder.build();
+        final Injector injector = injectMaidBuilder.build();
         return UseCaseMaid.useCaseMaid(
                 useCases(useCaseMethods),
-                injectMaid,
+                injector,
                 serializerAndDeserializer,
                 sideEffectsSystem,
                 executionDriver
