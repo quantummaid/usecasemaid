@@ -21,7 +21,7 @@
 
 package de.quantummaid.usecasemaid.driver;
 
-import de.quantummaid.injectmaid.Injector;
+import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.usecasemaid.InvocationId;
 import de.quantummaid.usecasemaid.ResultAndSideEffects;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;

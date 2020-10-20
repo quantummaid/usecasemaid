@@ -21,7 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.Injector;
+import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.Transaction;
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static de.quantummaid.injectmaid.ReusePolicy.SINGLETON;
+import static de.quantummaid.injectmaid.api.ReusePolicy.SINGLETON;
 import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.usecases.Transaction.transactionOnDatabase;
@@ -90,7 +90,8 @@ public final class DependencySpecs {
 
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(UseCaseWithTransaction.class)
-                .withDependencies(builder -> builder.withConstant(genericType(Map.class, String.class, String.class), database))
+                .withDependencies(builder -> builder.withInstance(
+                    genericType(Map.class, String.class, String.class), database))
                 .withInvocationScopedDependencies(builder -> builder.withType(Transaction.class, SINGLETON))
                 .build();
         useCaseMaid.invoke(UseCaseWithTransaction.class, Map.of());

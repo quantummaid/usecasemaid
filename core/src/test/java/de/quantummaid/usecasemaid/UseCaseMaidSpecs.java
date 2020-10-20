@@ -21,7 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.Injector;
+import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.*;
