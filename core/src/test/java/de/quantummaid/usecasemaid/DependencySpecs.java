@@ -22,6 +22,7 @@
 package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.api.Injector;
+import de.quantummaid.injectmaid.api.ReusePolicy;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.Transaction;
@@ -31,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static de.quantummaid.injectmaid.api.ReusePolicy.SINGLETON;
+import static de.quantummaid.injectmaid.api.customtype.api.CustomType.customType;
 import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.usecases.Transaction.transactionOnDatabase;
@@ -48,7 +49,7 @@ public final class DependencySpecs {
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(UseCaseWithTransaction.class)
                 .withInvocationScopedDependencies(builder ->
-                        builder.withCustomType(Transaction.class, () -> transactionOnDatabase(database), SINGLETON))
+                        builder.withCustomType(Transaction.class, () -> transactionOnDatabase(database), ReusePolicy.DEFAULT_SINGLETON))
                 .build();
         useCaseMaid.invoke(UseCaseWithTransaction.class, Map.of());
 
@@ -63,7 +64,7 @@ public final class DependencySpecs {
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(UseCaseWithTransaction.class)
                 .withInvocationScopedDependencies(builder ->
-                        builder.withCustomType(Transaction.class, () -> transactionOnDatabase(database), SINGLETON)
+                        builder.withCustomType(Transaction.class, () -> transactionOnDatabase(database), ReusePolicy.DEFAULT_SINGLETON)
                 )
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
@@ -90,9 +91,11 @@ public final class DependencySpecs {
 
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(UseCaseWithTransaction.class)
-                .withDependencies(builder -> builder.withInstance(
-                    genericType(Map.class, String.class, String.class), database))
-                .withInvocationScopedDependencies(builder -> builder.withType(Transaction.class, SINGLETON))
+                .withDependencies(builder -> builder
+                        .withCustomType(
+                                customType(genericType(Map.class, String.class, String.class))
+                                        .usingFactory(() -> database)))
+                .withInvocationScopedDependencies(builder -> builder.withType(Transaction.class, ReusePolicy.DEFAULT_SINGLETON))
                 .build();
         useCaseMaid.invoke(UseCaseWithTransaction.class, Map.of());
 
