@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.0.11](https://search.maven.org/artifact/de.quantummaid.injectmaid/injectmaid/0.0.11/jar) - 2020-12-02
+## [0.0.12](https://search.maven.org/artifact/de.quantummaid.injectmaid/injectmaid/0.0.12/jar) - 2020-12-02
+### Changed
+- Update dependencies.
+
+## [0.0.11](https://search.maven.org/artifact/de.quantummaid.injectmaid/injectmaid/0.0.11/jar) - 2020-10-20
 ### Changed
 - Update dependencies.
 
