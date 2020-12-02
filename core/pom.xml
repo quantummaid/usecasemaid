@@ -26,7 +26,7 @@
     <parent>
         <groupId>de.quantummaid.usecasemaid</groupId>
         <artifactId>usecasemaid-parent</artifactId>
-        <version>0.0.10</version>
+        <version>0.0.11</version>
     </parent>
 
     <artifactId>core</artifactId>
@@ -50,28 +50,28 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>1.18.16</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>de.quantummaid.reflectmaid</groupId>
             <artifactId>reflectmaid-parent</artifactId>
-            <version>0.1.38</version>
-        </dependency>
-        <dependency>
-            <groupId>de.quantummaid.injectmaid</groupId>
-            <artifactId>injector-api</artifactId>
-            <version>0.0.24</version>
+            <version>0.1.48</version>
         </dependency>
         <dependency>
             <groupId>de.quantummaid.injectmaid</groupId>
             <artifactId>core</artifactId>
-            <version>0.0.24</version>
+            <version>0.0.14</version>
+        </dependency>
+        <dependency>
+            <groupId>de.quantummaid.injectmaid</groupId>
+            <artifactId>core</artifactId>
+            <version>0.0.35</version>
         </dependency>
         <dependency>
             <groupId>de.quantummaid.mapmaid</groupId>
             <artifactId>core</artifactId>
-            <version>0.9.88</version>
+            <version>0.9.99</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

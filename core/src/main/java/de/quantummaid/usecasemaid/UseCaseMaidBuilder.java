@@ -23,8 +23,8 @@ package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.InjectMaidBuilder;
-import de.quantummaid.injectmaid.Injector;
-import de.quantummaid.injectmaid.InjectorConfiguration;
+import de.quantummaid.injectmaid.api.Injector;
+import de.quantummaid.injectmaid.api.InjectorConfiguration;
 import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.reflectmaid.GenericType;
