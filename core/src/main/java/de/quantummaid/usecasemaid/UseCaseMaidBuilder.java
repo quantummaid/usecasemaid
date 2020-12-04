@@ -27,6 +27,7 @@ import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.injectmaid.api.InjectorConfiguration;
 import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
+import de.quantummaid.mapmaid.builder.recipes.Recipe;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
@@ -57,6 +58,7 @@ public final class UseCaseMaidBuilder {
     private final List<GenericType<?>> useCases = new ArrayList<>();
     private final List<SideEffectRegistration> sideEffectRegistrations = new ArrayList<>();
     private ExecutionDriver executionDriver = simpleExecutionDriver();
+    private final List<Recipe> mapperConfigurations = new ArrayList<>();
     private final List<InjectorConfiguration> dependencies = new ArrayList<>();
     private final List<InjectorConfiguration> invocationScopedDependencies = new ArrayList<>();
 
@@ -90,6 +92,12 @@ public final class UseCaseMaidBuilder {
     public UseCaseMaidBuilder withExecutionDriver(final ExecutionDriver executionDriver) {
         validateNotNull(executionDriver, "executionDriver");
         this.executionDriver = executionDriver;
+        return this;
+    }
+
+    public UseCaseMaidBuilder withMapperConfiguration(final Recipe mapperConfiguration) {
+        validateNotNull(mapperConfiguration, "mapperConfiguration");
+        mapperConfigurations.add(mapperConfiguration);
         return this;
     }
 
@@ -127,6 +135,9 @@ public final class UseCaseMaidBuilder {
             sideEffectRegistrationMap.put(type.toResolvedType(), sideEffectRegistration);
         });
         final SideEffectsSystem sideEffectsSystem = SideEffectsSystem.sideEffectsSystem(sideEffectRegistrationMap);
+
+        mapperConfigurations.forEach(recipe -> recipe.cook(mapMaidBuilder));
+
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
         final Injector injector = injectMaidBuilder.build();
