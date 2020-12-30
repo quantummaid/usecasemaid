@@ -123,4 +123,29 @@ public final class UseCaseMaidSpecs {
         useCaseMaid.invoke(UseCaseWithSideEffects.class, Map.of());
         assertThat(executedSideEffects, contains("the overwritten side effect"));
     }
+
+    @Test
+    public void useCaseWithSameDtoInRequestAndResponse() {
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking(UseCaseWithSameDtoInRequestAndResponse.class)
+                .build();
+
+        final UseCaseResult response = useCaseMaid.invoke(UseCaseWithSameDtoInRequestAndResponse.class, Map.of(
+                "id", "abc",
+                "dto", Map.of(
+                        "field1", "a",
+                        "field2", "b",
+                        "field3", "c"
+                )
+        ));
+        assertThat(response.wasSuccessful(), is(true));
+        assertThat(response.returnValue(), is(Map.of(
+                "id", "abc",
+                "value", Map.of(
+                        "field1", "a",
+                        "field2", "b",
+                        "field3", "c"
+                )
+        )));
+    }
 }
