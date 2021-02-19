@@ -22,6 +22,7 @@
 package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.api.Injector;
+import de.quantummaid.injectmaid.timing.InstantiationTime;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.*;
@@ -31,6 +32,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static de.quantummaid.injectmaid.timing.InstantiationTime.instantiationTime;
+import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.usecasemaid.ResultAndSideEffects.resultAndSideEffects;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.UseCaseResult.successfulVoid;
@@ -42,6 +45,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 public final class UseCaseMaidSpecs {
+    private static final InstantiationTime INSTANTIATION_TIME = instantiationTime(genericType(String.class), 0L);
 
     @Test
     public void useCaseWithoutParametersCanBeInvoked() {
@@ -92,7 +96,8 @@ public final class UseCaseMaidSpecs {
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
                                                                final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
-                        return resultAndSideEffects(successfulVoid(), emptyList());
+                        return resultAndSideEffects(successfulVoid(INSTANTIATION_TIME),
+                                emptyList());
                     }
                 })
                 .build();
@@ -114,7 +119,7 @@ public final class UseCaseMaidSpecs {
                     public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
                                                                final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
-                        return resultAndSideEffects(successfulVoid(), List.of(
+                        return resultAndSideEffects(successfulVoid(INSTANTIATION_TIME), List.of(
                                 sideEffectInstance(mySideEffect("the overwritten side effect"))
                         ));
                     }

@@ -67,4 +67,8 @@ public final class SerializerAndDeserializer {
         final TypeIdentifier typeIdentifier = typeIdentifierFor(fromResolvedType(type));
         return mapMaid.serializer().serializeToUniversalObject(returnValue, typeIdentifier);
     }
+
+    public MapMaid mapMaid() {
+        return mapMaid;
+    }
 }

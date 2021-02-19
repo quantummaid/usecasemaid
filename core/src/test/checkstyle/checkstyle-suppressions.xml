@@ -27,4 +27,5 @@
     <suppress checks="VisibilityModifier|StaticVariableName|ExplicitInitialization" files="UseCaseWithoutParameters|UseCaseWithParameters"/>
     <suppress checks="IllegalCatch" files="UseCaseMaid|Given"/>
     <suppress checks="FileLength|MethodCount" files="SpecialUseCaseSpecs"/>
+    <suppress checks="MagicNumber" files=".*Specs"/>
 </suppressions>

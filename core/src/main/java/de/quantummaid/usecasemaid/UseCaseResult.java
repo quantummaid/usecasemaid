@@ -21,6 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
+import de.quantummaid.injectmaid.timing.InstantiationTime;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -35,17 +36,18 @@ public final class UseCaseResult {
     private final boolean noReturnValue;
     private final Object returnValue;
     private final Throwable exception;
+    private final InstantiationTime instantiationTime;
 
-    public static UseCaseResult successfulVoid() {
-        return new UseCaseResult(true, null, null);
+    public static UseCaseResult successfulVoid(final InstantiationTime instantiationTime) {
+        return new UseCaseResult(true, null, null, instantiationTime);
     }
 
-    public static UseCaseResult successfulReturnValue(final Object returnValue) {
-        return new UseCaseResult(false, returnValue, null);
+    public static UseCaseResult successfulReturnValue(final Object returnValue, final InstantiationTime instantiationTime) {
+        return new UseCaseResult(false, returnValue, null, instantiationTime);
     }
 
-    public static UseCaseResult error(final Throwable exception) {
-        return new UseCaseResult(true, null, exception);
+    public static UseCaseResult error(final Throwable exception, final InstantiationTime instantiationTime) {
+        return new UseCaseResult(true, null, exception, instantiationTime);
     }
 
     public boolean hasReturnValue() {
@@ -69,5 +71,9 @@ public final class UseCaseResult {
 
     public Throwable exception() {
         return exception;
+    }
+
+    public InstantiationTime instantiationTime() {
+        return instantiationTime;
     }
 }

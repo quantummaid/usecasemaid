@@ -23,7 +23,6 @@ package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.InjectMaidBuilder;
-import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.injectmaid.api.InjectorConfiguration;
 import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
@@ -140,7 +139,7 @@ public final class UseCaseMaidBuilder {
 
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
-        final Injector injector = injectMaidBuilder.build();
+        final InjectMaid injector = injectMaidBuilder.build();
         return UseCaseMaid.useCaseMaid(
                 useCases(useCaseMethods),
                 injector,

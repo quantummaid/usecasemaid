@@ -21,18 +21,31 @@
 
 package de.quantummaid.usecasemaid;
 
+import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.usecasemaid.usecases.UseCaseWithPseudoPrimitives;
+import de.quantummaid.usecasemaid.usecases.UseCaseWithoutParameters;
 import de.quantummaid.usecasemaid.usecases.domain.PseudoPrimitive;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType.stringBasedCustomPrimitive;
+import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.usecases.domain.PseudoPrimitive.pseudoPrimitive;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public final class MapperSpecs {
+
+    @Test
+    public void mapperCanBeQueried() {
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking(UseCaseWithoutParameters.class)
+                .build();
+        final MapMaid mapper = useCaseMaid.mapper();
+        assertThat(mapper, is(notNullValue()));
+    }
 
     @Test
     public void customMappingsCanBeRegistered() {

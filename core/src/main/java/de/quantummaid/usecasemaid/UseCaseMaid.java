@@ -21,7 +21,10 @@
 
 package de.quantummaid.usecasemaid;
 
-import de.quantummaid.injectmaid.api.Injector;
+import de.quantummaid.injectmaid.InjectMaid;
+import de.quantummaid.injectmaid.timing.InstantiationTime;
+import de.quantummaid.injectmaid.timing.TimedInstantiation;
+import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
@@ -47,7 +50,7 @@ import static java.util.stream.Collectors.toList;
 @SuppressWarnings("java:S1181")
 public final class UseCaseMaid {
     private final UseCases useCases;
-    private final Injector instantiator;
+    private final InjectMaid instantiator;
     private final SerializerAndDeserializer serializerAndDeserializer;
     private final SideEffectsSystem sideEffectsSystem;
     private final ExecutionDriver executionDriver;
@@ -57,7 +60,7 @@ public final class UseCaseMaid {
     }
 
     static UseCaseMaid useCaseMaid(final UseCases useCases,
-                                   final Injector instantiator,
+                                   final InjectMaid instantiator,
                                    final SerializerAndDeserializer serializerAndDeserializer,
                                    final SideEffectsSystem sideEffectsSystem,
                                    final ExecutionDriver executionDriver) {
@@ -94,12 +97,12 @@ public final class UseCaseMaid {
         final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
             final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances();
             final ResolvedType objectType = useCaseMethod.useCaseClass();
-            final Object useCaseInstance = scopedInjector.getInstance(objectType);
+            final TimedInstantiation<Object> instanceWithInitializationTime = scopedInjector.getInstanceWithInitializationTime(objectType);
             final Map<String, Object> parameters = serializerAndDeserializer
                     .deserializeParameters(input, useCaseMethod, injector ->
                             collectorInstances.forEach(instance ->
                                     injector.put(instance.collectorType(), instance.collectorInstance())));
-            final UseCaseResult result = invokeMethod(useCaseMethod, useCaseInstance, parameters);
+            final UseCaseResult result = invokeMethod(useCaseMethod, instanceWithInitializationTime, parameters);
             final List<SideEffectInstance<?>> collectedSideEffects = collectorInstances.stream()
                     .map(CollectorInstance::collectInstances)
                     .flatMap(Collection::stream)
@@ -113,21 +116,31 @@ public final class UseCaseMaid {
         return resultAndSideEffects.result();
     }
 
+    public InjectMaid instantiator() {
+        return instantiator;
+    }
+
+    public MapMaid mapper() {
+        return serializerAndDeserializer.mapMaid();
+    }
+
     private UseCaseResult invokeMethod(final UseCaseMethod useCaseMethod,
-                                       final Object useCase,
+                                       final TimedInstantiation<Object> timedUseCase,
                                        final Map<String, Object> parameters) {
+        final Object useCase = timedUseCase.instance();
+        final InstantiationTime instantiationTime = timedUseCase.instantiationTime();
         final Optional<Object> invocationResult;
         try {
             invocationResult = useCaseMethod.invoke(useCase, parameters);
         } catch (final Throwable e) {
-            return error(e);
+            return error(e, instantiationTime);
         }
         return invocationResult
                 .map(returnValue -> {
                     final ResolvedType returnType = useCaseMethod.returnType().orElseThrow();
                     return serializerAndDeserializer.serializeReturnValue(returnValue, returnType);
                 })
-                .map(UseCaseResult::successfulReturnValue)
-                .orElseGet(UseCaseResult::successfulVoid);
+                .map(returnValue -> UseCaseResult.successfulReturnValue(returnValue, instantiationTime))
+                .orElseGet(() -> UseCaseResult.successfulVoid(instantiationTime));
     }
 }
