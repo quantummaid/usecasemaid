@@ -21,7 +21,8 @@
 
 package de.quantummaid.usecasemaid.sideeffects.collector;
 
-import de.quantummaid.reflectmaid.ResolvedType;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
+import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
 import lombok.AccessLevel;
@@ -45,14 +46,15 @@ public final class CollectorInstance<C, S> {
     private final ResolvedType sideEffectType;
 
     @SuppressWarnings("unchecked")
-    public static CollectorInstance<?, ?> createInstance(final SideEffectRegistration registration) {
+    public static CollectorInstance<?, ?> createInstance(final ReflectMaid reflectMaid,
+                                                         final SideEffectRegistration registration) {
         final SideEffectsCollector<Object, Object> collector = (SideEffectsCollector<Object, Object>) registration.collector();
         final Object instance = collector.createCollectorInstance();
         return new CollectorInstance<>(
                 collector,
                 instance,
-                collector.collectorType().toResolvedType(),
-                registration.type().toResolvedType()
+                reflectMaid.resolve(collector.collectorType()),
+                reflectMaid.resolve(registration.type())
         );
     }
 

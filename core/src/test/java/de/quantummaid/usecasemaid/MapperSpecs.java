@@ -29,7 +29,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType.stringBasedCustomPrimitive;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.usecases.domain.PseudoPrimitive.pseudoPrimitive;
 import static org.hamcrest.CoreMatchers.is;
@@ -51,13 +50,12 @@ public final class MapperSpecs {
     public void customMappingsCanBeRegistered() {
         final UseCaseMaid useCaseMaid = UseCaseMaid.aUseCaseMaid()
                 .invoking(UseCaseWithPseudoPrimitives.class)
-                .withMapperConfiguration(mapMaidBuilder -> mapMaidBuilder.deserializing(
-                        stringBasedCustomPrimitive(
+                .withMapperConfiguration(mapMaidBuilder -> mapMaidBuilder.deserializingStringBasedCustomPrimitive(
                                 PseudoPrimitive.class,
                                 value -> {
                                     final String[] parts = value.split(":");
                                     return pseudoPrimitive(parts[0], parts[1]);
-                                })))
+                                }))
                 .build();
 
         final UseCaseResult result = useCaseMaid.invoke(UseCaseWithPseudoPrimitives.class, Map.of(

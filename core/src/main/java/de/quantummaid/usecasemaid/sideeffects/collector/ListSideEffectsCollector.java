@@ -39,9 +39,8 @@ public final class ListSideEffectsCollector<S> implements SideEffectsCollector<S
     private final GenericType<S> sideEffectsType;
     private final GenericType<List<S>> collectorType;
 
-    @SuppressWarnings("unchecked")
     public static <S> ListSideEffectsCollector<S> sideEffectsCollector(final GenericType<S> sideEffectType) {
-        final GenericType<List<S>> collectorType = (GenericType<List<S>>) (Object) genericType(List.class, sideEffectType);
+        final GenericType<List<S>> collectorType = genericType(List.class, List.of(sideEffectType));
         return new ListSideEffectsCollector<>(sideEffectType, collectorType);
     }
 

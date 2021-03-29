@@ -21,7 +21,8 @@
 
 package de.quantummaid.usecasemaid.sideeffects;
 
-import de.quantummaid.reflectmaid.ResolvedType;
+import de.quantummaid.reflectmaid.ReflectMaid;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,9 @@ public final class SideEffectInstance<S> {
     private final S sideEffect;
     private final ResolvedType type;
 
-    public static <S> SideEffectInstance<S> sideEffectInstance(final S sideEffect) {
-        return new SideEffectInstance<>(sideEffect, ResolvedType.resolvedType(sideEffect.getClass()));
+    public static <S> SideEffectInstance<S> sideEffectInstance(final ReflectMaid reflectMaid,
+                                                               final S sideEffect) {
+        return new SideEffectInstance<>(sideEffect, reflectMaid.resolve(sideEffect.getClass()));
     }
 
     public static <S> SideEffectInstance<S> sideEffectInstance(final S sideEffect,

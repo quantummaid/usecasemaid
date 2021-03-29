@@ -23,6 +23,7 @@ package de.quantummaid.usecasemaid;
 
 import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.injectmaid.timing.InstantiationTime;
+import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
 import de.quantummaid.usecasemaid.usecases.*;
@@ -33,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static de.quantummaid.injectmaid.timing.InstantiationTime.instantiationTime;
-import static de.quantummaid.reflectmaid.GenericType.genericType;
+import static de.quantummaid.reflectmaid.ReflectMaid.aReflectMaid;
 import static de.quantummaid.usecasemaid.ResultAndSideEffects.resultAndSideEffects;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.UseCaseResult.successfulVoid;
@@ -45,7 +46,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 public final class UseCaseMaidSpecs {
-    private static final InstantiationTime INSTANTIATION_TIME = instantiationTime(genericType(String.class), 0L);
+    private static final InstantiationTime INSTANTIATION_TIME = instantiationTime(aReflectMaid().resolve(String.class), 0L);
 
     @Test
     public void useCaseWithoutParametersCanBeInvoked() {
@@ -107,8 +108,9 @@ public final class UseCaseMaidSpecs {
 
     @Test
     public void sideEffectsCanBeProvidedByDriver() {
+        final ReflectMaid reflectMaid = ReflectMaid.aReflectMaid();
         final List<String> executedSideEffects = new ArrayList<>();
-        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+        final UseCaseMaid useCaseMaid = aUseCaseMaid(reflectMaid)
                 .invoking(UseCaseWithSideEffects.class)
                 .withSideEffects(MySideEffect.class, sideEffect -> {
                     final String value = sideEffect.getValue();
@@ -120,7 +122,7 @@ public final class UseCaseMaidSpecs {
                                                                final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
                         return resultAndSideEffects(successfulVoid(INSTANTIATION_TIME), List.of(
-                                sideEffectInstance(mySideEffect("the overwritten side effect"))
+                                sideEffectInstance(reflectMaid, mySideEffect("the overwritten side effect"))
                         ));
                     }
                 })
