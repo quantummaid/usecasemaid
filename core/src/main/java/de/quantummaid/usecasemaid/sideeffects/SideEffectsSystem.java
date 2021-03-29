@@ -21,7 +21,8 @@
 
 package de.quantummaid.usecasemaid.sideeffects;
 
-import de.quantummaid.reflectmaid.ResolvedType;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
+import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.usecasemaid.sideeffects.collector.CollectorInstance;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Map;
 
+import static de.quantummaid.usecasemaid.sideeffects.collector.CollectorInstance.createInstance;
 import static java.util.stream.Collectors.toList;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -46,9 +48,9 @@ public final class SideEffectsSystem {
         registration.executor().execute(sideEffect.sideEffect());
     }
 
-    public List<CollectorInstance<?, ?>> createCollectorInstances() {
+    public List<CollectorInstance<?, ?>> createCollectorInstances(final ReflectMaid reflectMaid) {
         return sideEffectRegistrations.values().stream()
-                .map(CollectorInstance::createInstance)
+                .map(sideEffectRegistration -> createInstance(reflectMaid, sideEffectRegistration))
                 .collect(toList());
     }
 }

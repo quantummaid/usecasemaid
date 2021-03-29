@@ -25,8 +25,8 @@ import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType;
 import de.quantummaid.mapmaid.mapper.deserialization.deserializers.TypeDeserializer;
 import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import de.quantummaid.reflectmaid.GenericType;
-import de.quantummaid.reflectmaid.ResolvedType;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 
 import java.util.Map;
@@ -35,6 +35,7 @@ import static de.quantummaid.mapmaid.builder.RequiredCapabilities.deserializatio
 import static de.quantummaid.mapmaid.builder.RequiredCapabilities.serialization;
 import static de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType.deserializationOnlyType;
 import static de.quantummaid.mapmaid.shared.identifier.VirtualTypeIdentifier.uniqueVirtualTypeIdentifier;
+import static de.quantummaid.reflectmaid.GenericType.fromResolvedType;
 import static de.quantummaid.usecasemaid.serializing.VirtualDeserializer.virtualDeserializerFor;
 import static java.lang.String.format;
 
@@ -52,7 +53,7 @@ public final class UseCaseClassScanner {
                         type, deserialization(), format("because parameter type of method %s", method.describe())));
 
         method.returnType().ifPresent(type -> {
-            final GenericType<?> genericType = GenericType.fromResolvedType(type);
+            final GenericType<?> genericType = fromResolvedType(type);
             builder.withType(
                     genericType,
                     serialization(),

@@ -25,8 +25,9 @@ import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.timing.InstantiationTime;
 import de.quantummaid.injectmaid.timing.TimedInstantiation;
 import de.quantummaid.mapmaid.MapMaid;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import de.quantummaid.reflectmaid.GenericType;
-import de.quantummaid.reflectmaid.ResolvedType;
+import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
@@ -41,7 +42,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static de.quantummaid.reflectmaid.GenericType.fromResolvedType;
 import static de.quantummaid.reflectmaid.GenericType.genericType;
+import static de.quantummaid.reflectmaid.ReflectMaid.aReflectMaid;
 import static de.quantummaid.usecasemaid.InvocationId.randomInvocationId;
 import static de.quantummaid.usecasemaid.UseCaseResult.error;
 import static java.util.stream.Collectors.toList;
@@ -49,6 +52,7 @@ import static java.util.stream.Collectors.toList;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("java:S1181")
 public final class UseCaseMaid {
+    private final ReflectMaid reflectMaid;
     private final UseCases useCases;
     private final InjectMaid instantiator;
     private final SerializerAndDeserializer serializerAndDeserializer;
@@ -56,19 +60,28 @@ public final class UseCaseMaid {
     private final ExecutionDriver executionDriver;
 
     public static UseCaseMaidBuilder aUseCaseMaid() {
-        return UseCaseMaidBuilder.useCaseMaidBuilder();
+        final ReflectMaid reflectMaid = aReflectMaid();
+        return aUseCaseMaid(reflectMaid);
     }
 
-    static UseCaseMaid useCaseMaid(final UseCases useCases,
+    public static UseCaseMaidBuilder aUseCaseMaid(final ReflectMaid reflectMaid) {
+        return UseCaseMaidBuilder.useCaseMaidBuilder(reflectMaid);
+    }
+
+    static UseCaseMaid useCaseMaid(final ReflectMaid reflectMaid,
+                                   final UseCases useCases,
                                    final InjectMaid instantiator,
                                    final SerializerAndDeserializer serializerAndDeserializer,
                                    final SideEffectsSystem sideEffectsSystem,
                                    final ExecutionDriver executionDriver) {
-        return new UseCaseMaid(useCases,
+        return new UseCaseMaid(
+                reflectMaid,
+                useCases,
                 instantiator,
                 serializerAndDeserializer,
                 sideEffectsSystem,
-                executionDriver);
+                executionDriver
+        );
     }
 
     public UseCaseResult invoke(final Class<?> useCase,
@@ -95,8 +108,8 @@ public final class UseCaseMaid {
                                 final InvocationId invocationId) {
         final UseCaseMethod useCaseMethod = useCases.forUseCase(useCase);
         final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
-            final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances();
-            final ResolvedType objectType = useCaseMethod.useCaseClass();
+            final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances(reflectMaid);
+            final GenericType<Object> objectType = fromResolvedType(useCaseMethod.useCaseClass());
             final TimedInstantiation<Object> instanceWithInitializationTime = scopedInjector.getInstanceWithInitializationTime(objectType);
             final Map<String, Object> parameters = serializerAndDeserializer
                     .deserializeParameters(input, useCaseMethod, injector ->
