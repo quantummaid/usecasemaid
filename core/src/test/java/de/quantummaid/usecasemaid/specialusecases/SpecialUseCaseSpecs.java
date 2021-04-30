@@ -259,7 +259,7 @@ public final class SpecialUseCaseSpecs {
                         "How it is serialized:\n" +
                         "\tNo serializer available\n" +
                         "Why it needs to be serializable:\n" +
-                        "\t- java.util.List<?> -> because return type of method 'List method()' [public java.util.List<? super java.lang.String> " +
+                        "\t- java.util.List<?> -> because return type of method 'List<?> method()' [public java.util.List<? super java.lang.String> " +
                         "de.quantummaid.usecasemaid.specialusecases.usecases.UseCaseWithWildcardInReturnType.method()]");
     }
 

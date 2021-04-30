@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import static de.quantummaid.reflectmaid.validators.NotNullValidator.validateNotNull;
+import static de.quantummaid.mapmaid.shared.validators.NotNullValidator.validateNotNull;
 
 @ToString
 @EqualsAndHashCode
