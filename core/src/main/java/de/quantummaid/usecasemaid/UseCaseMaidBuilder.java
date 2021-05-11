@@ -117,9 +117,9 @@ public final class UseCaseMaidBuilder {
         final Map<GenericType<?>, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid(reflectMaid);
         final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid(reflectMaid);
-
         dependencies.forEach(injectMaidBuilder::withConfiguration);
-        injectMaidBuilder.withScope(InvocationId.class, builder -> {
+        injectMaidBuilder.withScope(Invocation.class, builder -> {
+            builder.withCustomType(InvocationId.class, Invocation.class, Invocation::id);
             invocationScopedDependencies.forEach(builder::withConfiguration);
             useCases.forEach(type -> {
                 final ResolvedType resolvedType = reflectMaid.resolve(type);
@@ -129,7 +129,6 @@ public final class UseCaseMaidBuilder {
                 builder.withType(type);
             });
         });
-
         final Map<ResolvedType, SideEffectRegistration> sideEffectRegistrationMap = new LinkedHashMap<>();
         sideEffectRegistrations.forEach(sideEffectRegistration -> {
             final GenericType<?> type = sideEffectRegistration.type();
@@ -138,9 +137,7 @@ public final class UseCaseMaidBuilder {
             sideEffectRegistrationMap.put(resolvedType, sideEffectRegistration);
         });
         final SideEffectsSystem sideEffectsSystem = sideEffectsSystem(sideEffectRegistrationMap);
-
         mapperConfigurations.forEach(recipe -> recipe.cook(mapMaidBuilder));
-
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
         final InjectMaid injector = injectMaidBuilder.build();

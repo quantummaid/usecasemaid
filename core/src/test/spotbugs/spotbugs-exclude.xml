@@ -52,4 +52,8 @@
         <Bug pattern="DM_NEW_FOR_GETCLASS" />
         <Class name="de.quantummaid.usecasemaid.specialusecases.SpecialUseCaseSpecs" />
     </Match>
+    <Match>
+        <Bug pattern="MS_MUTABLE_COLLECTION" />
+        <Class name="de.quantummaid.usecasemaid.usecases.logging.Logger" />
+    </Match>
 </FindBugsFilter>
