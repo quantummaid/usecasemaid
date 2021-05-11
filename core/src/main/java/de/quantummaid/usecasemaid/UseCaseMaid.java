@@ -25,9 +25,9 @@ import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.timing.InstantiationTime;
 import de.quantummaid.injectmaid.timing.TimedInstantiation;
 import de.quantummaid.mapmaid.MapMaid;
-import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ReflectMaid;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectInstance;
@@ -45,6 +45,7 @@ import java.util.Optional;
 import static de.quantummaid.reflectmaid.GenericType.fromResolvedType;
 import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.reflectmaid.ReflectMaid.aReflectMaid;
+import static de.quantummaid.usecasemaid.Invocation.invocation;
 import static de.quantummaid.usecasemaid.InvocationId.randomInvocationId;
 import static de.quantummaid.usecasemaid.UseCaseResult.error;
 import static java.util.stream.Collectors.toList;
@@ -84,16 +85,39 @@ public final class UseCaseMaid {
         );
     }
 
+    public UseCaseResult invoke(final Class<?> useCase) {
+        final GenericType<?> genericType = genericType(useCase);
+        return invoke(genericType);
+    }
+
+    public UseCaseResult invoke(final GenericType<?> useCase) {
+        return invoke(useCase, Map.of());
+    }
+
     public UseCaseResult invoke(final Class<?> useCase,
                                 final Map<String, Object> input) {
-        final InvocationId invocationId = randomInvocationId();
-        return invoke(useCase, input, invocationId);
+        final GenericType<?> genericType = genericType(useCase);
+        return invoke(genericType, input);
     }
 
     public UseCaseResult invoke(final GenericType<?> useCase,
                                 final Map<String, Object> input) {
         final InvocationId invocationId = randomInvocationId();
         return invoke(useCase, input, invocationId);
+    }
+
+    public UseCaseResult invoke(final Class<?> useCase,
+                                final Map<String, Object> input,
+                                final Object additionalData) {
+        final GenericType<?> genericType = genericType(useCase);
+        return invoke(genericType, input, additionalData);
+    }
+
+    public UseCaseResult invoke(final GenericType<?> useCase,
+                                final Map<String, Object> input,
+                                final Object additionalData) {
+        final InvocationId invocationId = randomInvocationId();
+        return invoke(useCase, input, invocationId, additionalData);
     }
 
     public UseCaseResult invoke(final Class<?> useCase,
@@ -106,15 +130,32 @@ public final class UseCaseMaid {
     public UseCaseResult invoke(final GenericType<?> useCase,
                                 final Map<String, Object> input,
                                 final InvocationId invocationId) {
+        return invoke(useCase, input, invocationId, null);
+    }
+
+    public UseCaseResult invoke(final Class<?> useCase,
+                                final Map<String, Object> input,
+                                final InvocationId invocationId,
+                                final Object additionalData) {
+        final GenericType<?> genericType = genericType(useCase);
+        return invoke(genericType, input, invocationId, additionalData);
+    }
+
+    public UseCaseResult invoke(final GenericType<?> useCase,
+                                final Map<String, Object> input,
+                                final InvocationId invocationId,
+                                final Object additionalData) {
         final UseCaseMethod useCaseMethod = useCases.forUseCase(useCase);
-        final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocationId, instantiator, scopedInjector -> {
-            final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances(reflectMaid);
+        final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances(reflectMaid);
+        final Map<String, Object> parameters = serializerAndDeserializer
+                .deserializeParameters(input, useCaseMethod, injector ->
+                        collectorInstances.forEach(instance ->
+                                injector.put(instance.collectorType(), instance.collectorInstance())));
+        final Invocation invocation = invocation(invocationId, useCaseMethod.useCaseClass(), parameters, additionalData);
+        final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocation, instantiator, scopedInjector -> {
             final GenericType<Object> objectType = fromResolvedType(useCaseMethod.useCaseClass());
             final TimedInstantiation<Object> instanceWithInitializationTime = scopedInjector.getInstanceWithInitializationTime(objectType);
-            final Map<String, Object> parameters = serializerAndDeserializer
-                    .deserializeParameters(input, useCaseMethod, injector ->
-                            collectorInstances.forEach(instance ->
-                                    injector.put(instance.collectorType(), instance.collectorInstance())));
+
             final UseCaseResult result = invokeMethod(useCaseMethod, instanceWithInitializationTime, parameters);
             final List<SideEffectInstance<?>> collectedSideEffects = collectorInstances.stream()
                     .map(CollectorInstance::collectInstances)
@@ -124,7 +165,7 @@ public final class UseCaseMaid {
         });
 
         final List<SideEffectInstance<?>> sideEffects = resultAndSideEffects.sideEffects();
-        executionDriver.executeSideEffects(invocationId, sideEffects, instantiator, sideEffectsSystem);
+        executionDriver.executeSideEffects(invocation, sideEffects, instantiator, sideEffectsSystem);
 
         return resultAndSideEffects.result();
     }

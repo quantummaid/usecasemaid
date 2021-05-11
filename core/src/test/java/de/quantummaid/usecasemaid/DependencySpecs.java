@@ -68,10 +68,10 @@ public final class DependencySpecs {
                 )
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
-                    public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
+                    public ResultAndSideEffects executeUseCase(final Invocation invocation,
                                                                final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
-                        final Injector scopedInjector = injector.enterScope(InvocationId.class, invocationId);
+                        final Injector scopedInjector = injector.enterScope(Invocation.class, invocation);
                         final Transaction transaction = scopedInjector.getInstance(Transaction.class);
                         transaction.add("a", "b");
                         return useCaseExecution.executeUseCase(scopedInjector);

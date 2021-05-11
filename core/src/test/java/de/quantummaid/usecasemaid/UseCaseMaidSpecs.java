@@ -94,7 +94,7 @@ public final class UseCaseMaidSpecs {
                 .invoking(UseCaseWithoutParameters.class)
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
-                    public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
+                    public ResultAndSideEffects executeUseCase(final Invocation invocationId,
                                                                final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
                         return resultAndSideEffects(successfulVoid(INSTANTIATION_TIME),
@@ -118,7 +118,7 @@ public final class UseCaseMaidSpecs {
                 })
                 .withExecutionDriver(new ExecutionDriver() {
                     @Override
-                    public ResultAndSideEffects executeUseCase(final InvocationId invocationId,
+                    public ResultAndSideEffects executeUseCase(final Invocation invocationId,
                                                                final Injector injector,
                                                                final UseCaseExecution useCaseExecution) {
                         return resultAndSideEffects(successfulVoid(INSTANTIATION_TIME), List.of(
