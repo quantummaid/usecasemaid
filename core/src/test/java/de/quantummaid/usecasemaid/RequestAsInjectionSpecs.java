@@ -21,6 +21,7 @@
 
 package de.quantummaid.usecasemaid;
 
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import de.quantummaid.usecasemaid.usecases.logging.Id;
 import de.quantummaid.usecasemaid.usecases.logging.Logger;
 import de.quantummaid.usecasemaid.usecases.logging.LoggingUseCase;
@@ -38,6 +39,8 @@ public final class RequestAsInjectionSpecs {
 
     @Test
     public void useCaseCanDependOnRequest() {
+        Logger.LOG_MESSAGES.clear();
+        assertThat(Logger.LOG_MESSAGES, empty());
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(LoggingUseCase.class)
                 .withInvocationScopedDependencies(builder -> builder
@@ -47,7 +50,6 @@ public final class RequestAsInjectionSpecs {
                             return request.id;
                         }))
                 .build();
-        assertThat(Logger.LOG_MESSAGES, empty());
         useCaseMaid.invoke(LoggingUseCase.class, Map.of("request", Map.of(
                 "id", "asdf",
                 "field0", "x",
@@ -55,5 +57,44 @@ public final class RequestAsInjectionSpecs {
                 )
         ));
         assertThat(Logger.LOG_MESSAGES, contains("asdf: foo"));
+    }
+
+    @Test
+    public void useCaseCanDependOnAdditionalData() {
+        Logger.LOG_MESSAGES.clear();
+        assertThat(Logger.LOG_MESSAGES, empty());
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking(LoggingUseCase.class)
+                .withInvocationScopedDependencies(builder -> builder
+                        .withCustomType(Id.class, Invocation.class, invocation -> (Id) invocation.additionalData()))
+                .build();
+        useCaseMaid.invoke(LoggingUseCase.class, Map.of("request", Map.of(
+                "id", "asdf",
+                "field0", "x",
+                "field1", "y"
+                )
+        ), new Id("yxcv"));
+        assertThat(Logger.LOG_MESSAGES, contains("yxcv: foo"));
+    }
+
+    @Test
+    public void useCaseCanDependOnUsecaseClass() {
+        Logger.LOG_MESSAGES.clear();
+        assertThat(Logger.LOG_MESSAGES, empty());
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking(LoggingUseCase.class)
+                .withInvocationScopedDependencies(builder -> builder
+                        .withCustomType(Id.class, Invocation.class, invocation -> {
+                            final ResolvedType resolvedType = invocation.useCase();
+                            return new Id(resolvedType.description());
+                        }))
+                .build();
+        useCaseMaid.invoke(LoggingUseCase.class, Map.of("request", Map.of(
+                "id", "asdf",
+                "field0", "x",
+                "field1", "y"
+                )
+        ), new Id("yxcv"));
+        assertThat(Logger.LOG_MESSAGES, contains("de.quantummaid.usecasemaid.usecases.logging.LoggingUseCase: foo"));
     }
 }

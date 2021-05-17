@@ -24,12 +24,16 @@ package de.quantummaid.usecasemaid;
 import de.quantummaid.usecasemaid.usecases.CheckedExceptionThrowingUseCase;
 import de.quantummaid.usecasemaid.usecases.RuntimeExceptionThrowingUseCase;
 import de.quantummaid.usecasemaid.usecases.UseCaseWithReturnValue;
+import de.quantummaid.usecasemaid.usecases.UseCaseWithoutReturnValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.givenwhenthen.Given.given;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public final class ReturnValueSpecs {
 
@@ -69,5 +73,22 @@ public final class ReturnValueSpecs {
         )
                 .when().useCaseIsInvoked(CheckedExceptionThrowingUseCase.class)
                 .theUseCaseThrewCheckedExceptionWithMessage("from the usecase");
+    }
+
+    @Test
+    public void queryingTheReturnValueOfVoidUseCaseThrowsException() {
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking(UseCaseWithoutReturnValue.class)
+                .build();
+
+        final UseCaseResult result = useCaseMaid.invoke(UseCaseWithoutReturnValue.class);
+        Exception exception = null;
+        try {
+            result.returnValue();
+        } catch (final UseCaseMaidException e) {
+            exception = e;
+        }
+        assertThat(exception, instanceOf(UseCaseMaidException.class));
+        assertThat(exception.getMessage(), is("cannot provide a return value because the use case method was void"));
     }
 }

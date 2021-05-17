@@ -114,7 +114,7 @@ public final class UseCaseMaidBuilder {
     }
 
     public UseCaseMaid build() {
-        final Map<GenericType<?>, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
+        final Map<ResolvedType, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
         final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid(reflectMaid);
         final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid(reflectMaid);
         dependencies.forEach(injectMaidBuilder::withConfiguration);
@@ -124,7 +124,7 @@ public final class UseCaseMaidBuilder {
             useCases.forEach(type -> {
                 final ResolvedType resolvedType = reflectMaid.resolve(type);
                 final UseCaseMethod useCaseMethod = useCaseMethodOf(resolvedType);
-                useCaseMethods.put(type, useCaseMethod);
+                useCaseMethods.put(resolvedType, useCaseMethod);
                 UseCaseClassScanner.addMethod(useCaseMethod, mapMaidBuilder);
                 builder.withType(type);
             });

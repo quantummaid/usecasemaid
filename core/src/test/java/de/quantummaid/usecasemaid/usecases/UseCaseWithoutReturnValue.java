@@ -19,24 +19,11 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid;
+package de.quantummaid.usecasemaid.usecases;
 
-import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
-import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+public final class UseCaseWithoutReturnValue {
 
-import java.util.Map;
-
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UseCases {
-    private final Map<ResolvedType, UseCaseMethod> useCases;
-
-    public static UseCases useCases(final Map<ResolvedType, UseCaseMethod> useCases) {
-        return new UseCases(useCases);
-    }
-
-    public UseCaseMethod forUseCase(final ResolvedType useCase) {
-        return useCases.get(useCase);
+    public void execute() {
+        // do nothing
     }
 }
