@@ -28,10 +28,6 @@ public final class UseCaseMaidException extends RuntimeException {
         super(message, cause);
     }
 
-    public static UseCaseMaidException useCaseMaidException(final Throwable cause) {
-        return new UseCaseMaidException(null, cause);
-    }
-
     public static UseCaseMaidException useCaseMaidException(final String message) {
         return new UseCaseMaidException(message, null);
     }

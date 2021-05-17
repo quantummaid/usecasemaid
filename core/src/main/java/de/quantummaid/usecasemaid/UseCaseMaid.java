@@ -145,7 +145,8 @@ public final class UseCaseMaid {
                                 final Map<String, Object> input,
                                 final InvocationId invocationId,
                                 final Object additionalData) {
-        final UseCaseMethod useCaseMethod = useCases.forUseCase(useCase);
+        final ResolvedType resolvedType = reflectMaid.resolve(useCase);
+        final UseCaseMethod useCaseMethod = useCases.forUseCase(resolvedType);
         final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances(reflectMaid);
         final Map<String, Object> parameters = serializerAndDeserializer
                 .deserializeParameters(input, useCaseMethod, injector ->
