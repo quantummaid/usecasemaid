@@ -35,6 +35,7 @@ import java.util.Map;
 
 import static de.quantummaid.injectmaid.timing.InstantiationTime.instantiationTime;
 import static de.quantummaid.reflectmaid.ReflectMaid.aReflectMaid;
+import static de.quantummaid.reflectmaid.typescanner.TypeIdentifier.typeIdentifierFor;
 import static de.quantummaid.usecasemaid.ResultAndSideEffects.resultAndSideEffects;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.UseCaseResult.successfulVoid;
@@ -46,23 +47,29 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 public final class UseCaseMaidSpecs {
-    private static final InstantiationTime INSTANTIATION_TIME = instantiationTime(aReflectMaid().resolve(String.class), 0L);
+    private static final InstantiationTime INSTANTIATION_TIME =
+            instantiationTime(typeIdentifierFor(aReflectMaid().resolve(String.class)), 0L);
 
     @Test
     public void useCaseWithoutParametersCanBeInvoked() {
         UseCaseWithoutParameters.INVOCATION_COUNT = 0;
+
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(UseCaseWithoutParameters.class)
                 .build();
-        useCaseMaid.invoke(UseCaseWithoutParameters.class, Map.of());
+
+        useCaseMaid.invoke(UseCaseWithoutParameters.class);
+
         assertThat(UseCaseWithoutParameters.INVOCATION_COUNT, is(1));
     }
 
     @Test
     public void useCaseWithParametersCanBeInvoked() {
+
         final UseCaseMaid useCaseMaid = aUseCaseMaid()
                 .invoking(UseCaseWithParameters.class)
                 .build();
+
         useCaseMaid.invoke(UseCaseWithParameters.class, Map.of(
                 "myDto", Map.of(
                         "field1", "a",
@@ -70,6 +77,7 @@ public final class UseCaseMaidSpecs {
                         "field3", "c")
                 )
         );
+
         assertThat(UseCaseWithParameters.LAST_PARAMETER, is(MyDto.myDto("a", "b", "c")));
     }
 

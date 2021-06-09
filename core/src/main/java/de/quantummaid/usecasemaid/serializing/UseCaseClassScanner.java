@@ -24,9 +24,9 @@ package de.quantummaid.usecasemaid.serializing;
 import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType;
 import de.quantummaid.mapmaid.mapper.deserialization.deserializers.TypeDeserializer;
-import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
-import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
 import de.quantummaid.reflectmaid.GenericType;
+import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
+import de.quantummaid.reflectmaid.typescanner.TypeIdentifier;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 
 import java.util.Map;
@@ -34,8 +34,8 @@ import java.util.Map;
 import static de.quantummaid.mapmaid.builder.RequiredCapabilities.deserialization;
 import static de.quantummaid.mapmaid.builder.RequiredCapabilities.serialization;
 import static de.quantummaid.mapmaid.builder.customtypes.DeserializationOnlyType.deserializationOnlyType;
-import static de.quantummaid.mapmaid.shared.identifier.VirtualTypeIdentifier.uniqueVirtualTypeIdentifier;
 import static de.quantummaid.reflectmaid.GenericType.fromResolvedType;
+import static de.quantummaid.reflectmaid.typescanner.TypeIdentifier.uniqueVirtualTypeIdentifier;
 import static de.quantummaid.usecasemaid.serializing.VirtualDeserializer.virtualDeserializerFor;
 import static java.lang.String.format;
 
