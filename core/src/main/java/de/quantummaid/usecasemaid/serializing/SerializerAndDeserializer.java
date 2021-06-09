@@ -23,8 +23,8 @@ package de.quantummaid.usecasemaid.serializing;
 
 import de.quantummaid.mapmaid.MapMaid;
 import de.quantummaid.mapmaid.mapper.injector.InjectorLambda;
-import de.quantummaid.mapmaid.shared.identifier.TypeIdentifier;
 import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
+import de.quantummaid.reflectmaid.typescanner.TypeIdentifier;
 import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -34,7 +34,7 @@ import lombok.ToString;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static de.quantummaid.mapmaid.shared.identifier.TypeIdentifier.typeIdentifierFor;
+import static de.quantummaid.reflectmaid.typescanner.TypeIdentifier.typeIdentifierFor;
 
 @ToString
 @EqualsAndHashCode
@@ -53,10 +53,11 @@ public final class SerializerAndDeserializer {
         useCaseMethod.parameters().forEach((name, type) -> {
             final Object serialized = input.get(name);
             final TypeIdentifier targetType = typeIdentifierFor(type);
-            final Object deserialized = mapMaid.deserializer()
-                    .deserializeFromUniversalObject(serialized,
-                            targetType,
-                            injector);
+            final Object deserialized = mapMaid.deserializeFromUniversalObject(
+                    serialized,
+                    targetType,
+                    injector
+            );
             parameters.put(name, deserialized);
         });
         return parameters;
@@ -64,7 +65,7 @@ public final class SerializerAndDeserializer {
 
     public Object serializeReturnValue(final Object returnValue, final ResolvedType type) {
         final TypeIdentifier typeIdentifier = typeIdentifierFor(type);
-        return mapMaid.serializer().serializeToUniversalObject(returnValue, typeIdentifier);
+        return mapMaid.serializeToUniversalObject(returnValue, typeIdentifier);
     }
 
     public MapMaid mapMaid() {
