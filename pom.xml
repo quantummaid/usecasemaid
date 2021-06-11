@@ -10,7 +10,7 @@
 
     <groupId>de.quantummaid.usecasemaid</groupId>
     <artifactId>usecasemaid-parent</artifactId>
-    <version>0.0.29</version>
+    <version>0.0.30</version>
     <packaging>pom</packaging>
 
     <name>UseCaseMaid</name>
