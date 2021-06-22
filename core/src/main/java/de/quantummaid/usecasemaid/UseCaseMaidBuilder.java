@@ -137,7 +137,7 @@ public final class UseCaseMaidBuilder {
             sideEffectRegistrationMap.put(resolvedType, sideEffectRegistration);
         });
         final SideEffectsSystem sideEffectsSystem = sideEffectsSystem(sideEffectRegistrationMap);
-        mapperConfigurations.forEach(recipe -> recipe.cook(mapMaidBuilder));
+        mapperConfigurations.forEach(recipe -> recipe.apply(mapMaidBuilder));
         final MapMaid mapMaid = mapMaidBuilder.build();
         final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid);
         final InjectMaid injector = injectMaidBuilder.build();
