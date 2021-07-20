@@ -31,7 +31,6 @@ import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static de.quantummaid.reflectmaid.typescanner.TypeIdentifier.typeIdentifierFor;
@@ -41,26 +40,18 @@ import static de.quantummaid.reflectmaid.typescanner.TypeIdentifier.typeIdentifi
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SerializerAndDeserializer {
     private final MapMaid mapMaid;
+    private final Map<UseCaseMethod, TypeIdentifier> virtualTypeIdentifiers;
 
-    public static SerializerAndDeserializer serializationAndDeserialization(final MapMaid mapMaid) {
-        return new SerializerAndDeserializer(mapMaid);
+    public static SerializerAndDeserializer serializationAndDeserialization(final MapMaid mapMaid,
+                                                                            final Map<UseCaseMethod, TypeIdentifier> virtualTypeIdentifiers) {
+        return new SerializerAndDeserializer(mapMaid, virtualTypeIdentifiers);
     }
 
     public Map<String, Object> deserializeParameters(final Map<String, Object> input,
                                                      final UseCaseMethod useCaseMethod,
                                                      final InjectorLambda injector) {
-        final Map<String, Object> parameters = new LinkedHashMap<>();
-        useCaseMethod.parameters().forEach((name, type) -> {
-            final Object serialized = input.get(name);
-            final TypeIdentifier targetType = typeIdentifierFor(type);
-            final Object deserialized = mapMaid.deserializeFromUniversalObject(
-                    serialized,
-                    targetType,
-                    injector
-            );
-            parameters.put(name, deserialized);
-        });
-        return parameters;
+        final TypeIdentifier virtualTypeIdentifier = virtualTypeIdentifiers.get(useCaseMethod);
+        return mapMaid.deserializeFromUniversalObject(input, virtualTypeIdentifier, injector);
     }
 
     public Object serializeReturnValue(final Object returnValue, final ResolvedType type) {

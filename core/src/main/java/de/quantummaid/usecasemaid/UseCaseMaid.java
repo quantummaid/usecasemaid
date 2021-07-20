@@ -25,6 +25,7 @@ import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.timing.InstantiationTime;
 import de.quantummaid.injectmaid.timing.TimedInstantiation;
 import de.quantummaid.mapmaid.MapMaid;
+import de.quantummaid.mapmaid.mapper.injector.InjectorLambda;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
@@ -47,6 +48,7 @@ import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.reflectmaid.ReflectMaid.aReflectMaid;
 import static de.quantummaid.usecasemaid.Invocation.invocation;
 import static de.quantummaid.usecasemaid.InvocationId.randomInvocationId;
+import static de.quantummaid.usecasemaid.RoutingTarget.routingTarget;
 import static de.quantummaid.usecasemaid.UseCaseResult.error;
 import static java.util.stream.Collectors.toList;
 
@@ -146,12 +148,31 @@ public final class UseCaseMaid {
                                 final InvocationId invocationId,
                                 final Object additionalData) {
         final ResolvedType resolvedType = reflectMaid.resolve(useCase);
-        final UseCaseMethod useCaseMethod = useCases.forUseCase(resolvedType);
+        final RoutingTarget routingTarget = routingTarget(resolvedType);
+        return invoke(routingTarget, input, invocationId, additionalData);
+    }
+
+    public UseCaseResult invoke(final RoutingTarget routingTarget,
+                                final Map<String, Object> input,
+                                final InvocationId invocationId,
+                                final Object additionalData) {
+        return invoke(routingTarget, input, invocationId, additionalData, injector -> {
+        });
+    }
+
+    public UseCaseResult invoke(final RoutingTarget routingTarget,
+                                final Map<String, Object> input,
+                                final InvocationId invocationId,
+                                final Object additionalData,
+                                final InjectorLambda injectorLambda) {
+        final UseCaseMethod useCaseMethod = useCases.forRoutingTarget(routingTarget);
         final List<CollectorInstance<?, ?>> collectorInstances = sideEffectsSystem.createCollectorInstances(reflectMaid);
         final Map<String, Object> parameters = serializerAndDeserializer
-                .deserializeParameters(input, useCaseMethod, injector ->
-                        collectorInstances.forEach(instance ->
-                                injector.put(instance.collectorType(), instance.collectorInstance())));
+                .deserializeParameters(input, useCaseMethod, injector -> {
+                    injectorLambda.setupInjector(injector);
+                    collectorInstances.forEach(instance ->
+                            injector.put(instance.collectorType(), instance.collectorInstance()));
+                });
         final Invocation invocation = invocation(invocationId, useCaseMethod.useCaseClass(), parameters, additionalData);
         final ResultAndSideEffects resultAndSideEffects = executionDriver.executeUseCase(invocation, instantiator, scopedInjector -> {
             final GenericType<Object> objectType = fromResolvedType(useCaseMethod.useCaseClass());
@@ -197,5 +218,18 @@ public final class UseCaseMaid {
                 })
                 .map(returnValue -> UseCaseResult.successfulReturnValue(returnValue, instantiationTime))
                 .orElseGet(() -> UseCaseResult.successfulVoid(instantiationTime));
+    }
+
+    public Collection<String> topLevelParameterNamesFor(final RoutingTarget routingTarget) {
+        final UseCaseMethod useCaseMethod = useCases.forRoutingTarget(routingTarget);
+        return useCaseMethod.parameters().keySet();
+    }
+
+    public void runStartupChecks() {
+        useCases.all().forEach(useCaseMethod -> {
+            final ResolvedType useCaseClass = useCaseMethod.useCaseClass();
+            final Invocation invocation = invocation(randomInvocationId(), useCaseMethod.useCaseClass(), Map.of(), null);
+            instantiator.enterScope(invocation).getInstance(useCaseClass);
+        });
     }
 }

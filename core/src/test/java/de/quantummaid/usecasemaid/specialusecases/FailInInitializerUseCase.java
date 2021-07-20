@@ -19,28 +19,15 @@
  * under the License.
  */
 
-package de.quantummaid.usecasemaid;
+package de.quantummaid.usecasemaid.specialusecases;
 
-import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
+public final class FailInInitializerUseCase {
 
-import java.util.Collection;
-import java.util.Map;
-
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
-public final class UseCases {
-    private final Map<RoutingTarget, UseCaseMethod> useCases;
-
-    public static UseCases useCases(final Map<RoutingTarget, UseCaseMethod> useCases) {
-        return new UseCases(useCases);
+    public FailInInitializerUseCase() {
+        throw new MyUseCaseInitializationException();
     }
 
-    public UseCaseMethod forRoutingTarget(final RoutingTarget routingTarget) {
-        return useCases.get(routingTarget);
-    }
-
-    public Collection<UseCaseMethod> all() {
-        return useCases.values();
+    public void performUseCase() {
+        throw new UnsupportedOperationException();
     }
 }

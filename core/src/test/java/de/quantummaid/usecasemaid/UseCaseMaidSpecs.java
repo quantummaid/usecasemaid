@@ -21,15 +21,19 @@
 
 package de.quantummaid.usecasemaid;
 
+import de.quantummaid.injectmaid.InjectMaidException;
 import de.quantummaid.injectmaid.api.Injector;
 import de.quantummaid.injectmaid.timing.InstantiationTime;
 import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
 import de.quantummaid.usecasemaid.driver.UseCaseExecution;
+import de.quantummaid.usecasemaid.specialusecases.FailInInitializerUseCase;
+import de.quantummaid.usecasemaid.specialusecases.MyUseCaseInitializationException;
 import de.quantummaid.usecasemaid.usecases.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -37,18 +41,72 @@ import static de.quantummaid.injectmaid.timing.InstantiationTime.instantiationTi
 import static de.quantummaid.reflectmaid.ReflectMaid.aReflectMaid;
 import static de.quantummaid.reflectmaid.typescanner.TypeIdentifier.typeIdentifierFor;
 import static de.quantummaid.usecasemaid.ResultAndSideEffects.resultAndSideEffects;
+import static de.quantummaid.usecasemaid.RoutingTarget.routingTarget;
 import static de.quantummaid.usecasemaid.UseCaseMaid.aUseCaseMaid;
 import static de.quantummaid.usecasemaid.UseCaseResult.successfulVoid;
 import static de.quantummaid.usecasemaid.sideeffects.SideEffectInstance.sideEffectInstance;
 import static de.quantummaid.usecasemaid.usecases.MySideEffect.mySideEffect;
 import static java.util.Collections.emptyList;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public final class UseCaseMaidSpecs {
     private static final InstantiationTime INSTANTIATION_TIME =
             instantiationTime(typeIdentifierFor(aReflectMaid().resolve(String.class)), 0L);
+
+    @Test
+    public void useCaseCanBeRegisteredWithId() {
+        UseCaseWithoutParameters.INVOCATION_COUNT = 0;
+        final ReflectMaid reflectMaid = aReflectMaid();
+        final UseCaseMaid useCaseMaid = aUseCaseMaid(reflectMaid)
+                .invoking(routingTarget("a", reflectMaid.resolve(UseCaseWithoutParameters.class)))
+                .invoking(routingTarget("b", reflectMaid.resolve(UseCaseWithoutParameters.class)))
+                .build();
+
+        useCaseMaid.invoke(routingTarget("a", reflectMaid.resolve(UseCaseWithoutParameters.class)), Map.of(), InvocationId.randomInvocationId(), new Object());
+        assertThat(UseCaseWithoutParameters.INVOCATION_COUNT, is(1));
+
+        useCaseMaid.invoke(routingTarget("b", reflectMaid.resolve(UseCaseWithoutParameters.class)), Map.of(), InvocationId.randomInvocationId(), new Object());
+        assertThat(UseCaseWithoutParameters.INVOCATION_COUNT, is(2));
+    }
+
+    @Test
+    public void useCaseInvocationCanDoMapMaidInjections() {
+        final ReflectMaid reflectMaid = aReflectMaid();
+        final UseCaseMaid useCaseMaid = aUseCaseMaid(reflectMaid)
+                .invoking(UseCaseWithParameters.class)
+                .build();
+
+        final RoutingTarget routingTarget = routingTarget(reflectMaid.resolve(UseCaseWithParameters.class));
+        useCaseMaid.invoke(routingTarget, Map.of(
+                "myDto", Map.of(
+                        "field1", "a",
+                        "field2", "b",
+                        "field3", "c")
+        ), InvocationId.randomInvocationId(), new Object(), injector -> injector.put("myDto.field2", "x"));
+
+        assertThat(UseCaseWithParameters.LAST_PARAMETER, is(MyDto.myDto("a", "x", "c")));
+    }
+
+    @Test
+    public void useCasesCanBePreinitialized() {
+        final UseCaseMaid useCaseMaid = aUseCaseMaid()
+                .invoking(FailInInitializerUseCase.class)
+                .build();
+
+        InjectMaidException exception = null;
+        try {
+            useCaseMaid.runStartupChecks();
+        } catch (final InjectMaidException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
+        assertThat(exception.getCause(), instanceOf(MyUseCaseInitializationException.class));
+    }
 
     @Test
     public void useCaseWithoutParametersCanBeInvoked() {
@@ -116,7 +174,7 @@ public final class UseCaseMaidSpecs {
 
     @Test
     public void sideEffectsCanBeProvidedByDriver() {
-        final ReflectMaid reflectMaid = ReflectMaid.aReflectMaid();
+        final ReflectMaid reflectMaid = aReflectMaid();
         final List<String> executedSideEffects = new ArrayList<>();
         final UseCaseMaid useCaseMaid = aUseCaseMaid(reflectMaid)
                 .invoking(UseCaseWithSideEffects.class)
@@ -164,4 +222,14 @@ public final class UseCaseMaidSpecs {
         )));
     }
 
+    @Test
+    public void topLevelParametersCanBeQueried() {
+        final ReflectMaid reflectMaid = aReflectMaid();
+        final RoutingTarget routingTarget = routingTarget(reflectMaid.resolve(UseCaseWithParameters.class));
+        final UseCaseMaid useCaseMaid = aUseCaseMaid(reflectMaid)
+                .invoking(routingTarget)
+                .build();
+        final Collection<String> parameterNames = useCaseMaid.topLevelParameterNamesFor(routingTarget);
+        assertThat(parameterNames, containsInAnyOrder("myDto"));
+    }
 }
