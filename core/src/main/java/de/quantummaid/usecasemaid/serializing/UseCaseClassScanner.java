@@ -45,7 +45,8 @@ public final class UseCaseClassScanner {
     }
 
     public static void addMethod(final UseCaseMethod method,
-                                 final MapMaidBuilder builder) {
+                                 final MapMaidBuilder builder,
+                                 final Map<UseCaseMethod, TypeIdentifier> virtualTypeIdentifiers) {
         final Map<String, ResolvedType> parameters = method.parameters();
         parameters.values().stream()
                 .map(GenericType::fromResolvedType)
@@ -60,13 +61,10 @@ public final class UseCaseClassScanner {
                     format("because return type of method %s", method.describe()));
         });
 
-        final DeserializationOnlyType<?> virtualType = createVirtualObjectFor(method.describe(), parameters);
+        final TypeIdentifier virtualTypeIdentifier = uniqueVirtualTypeIdentifier();
+        final TypeDeserializer deserializer = virtualDeserializerFor(method.describe(), parameters);
+        final DeserializationOnlyType<?> virtualType = deserializationOnlyType(virtualTypeIdentifier, deserializer);
         builder.deserializing(virtualType);
-    }
-
-    private static DeserializationOnlyType<?> createVirtualObjectFor(final String method, final Map<String, ResolvedType> parameters) {
-        final TypeIdentifier typeIdentifier = uniqueVirtualTypeIdentifier();
-        final TypeDeserializer deserializer = virtualDeserializerFor(method, parameters);
-        return deserializationOnlyType(typeIdentifier, deserializer);
+        virtualTypeIdentifiers.put(method, virtualTypeIdentifier);
     }
 }
