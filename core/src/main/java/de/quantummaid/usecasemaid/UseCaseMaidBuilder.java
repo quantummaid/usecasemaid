@@ -24,38 +24,25 @@ package de.quantummaid.usecasemaid;
 import de.quantummaid.injectmaid.InjectMaid;
 import de.quantummaid.injectmaid.InjectMaidBuilder;
 import de.quantummaid.injectmaid.api.InjectorConfiguration;
-import de.quantummaid.mapmaid.MapMaid;
-import de.quantummaid.mapmaid.builder.MapMaidBuilder;
 import de.quantummaid.mapmaid.builder.recipes.Recipe;
 import de.quantummaid.reflectmaid.GenericType;
 import de.quantummaid.reflectmaid.ReflectMaid;
 import de.quantummaid.reflectmaid.resolvedtype.ResolvedType;
-import de.quantummaid.reflectmaid.typescanner.TypeIdentifier;
 import de.quantummaid.usecasemaid.driver.ExecutionDriver;
-import de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectExecutor;
 import de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration;
-import de.quantummaid.usecasemaid.sideeffects.SideEffectsSystem;
-import de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-import static de.quantummaid.injectmaid.api.ReusePolicy.PROTOTYPE;
+import static de.quantummaid.injectmaid.InjectMaid.anInjectMaid;
 import static de.quantummaid.mapmaid.shared.validators.NotNullValidator.validateNotNull;
 import static de.quantummaid.reflectmaid.GenericType.genericType;
 import static de.quantummaid.usecasemaid.RoutingTarget.routingTarget;
-import static de.quantummaid.usecasemaid.UseCases.useCases;
 import static de.quantummaid.usecasemaid.driver.SimpleExecutionDriver.simpleExecutionDriver;
-import static de.quantummaid.usecasemaid.serializing.SerializerAndDeserializer.serializationAndDeserialization;
-import static de.quantummaid.usecasemaid.serializing.UseCaseClassScanner.addMethod;
 import static de.quantummaid.usecasemaid.sideeffects.SideEffectRegistration.sideEffectRegistration;
-import static de.quantummaid.usecasemaid.sideeffects.SideEffectsSystem.sideEffectsSystem;
-import static de.quantummaid.usecasemaid.usecasemethod.UseCaseMethod.useCaseMethodOf;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class UseCaseMaidBuilder {
@@ -122,41 +109,19 @@ public final class UseCaseMaidBuilder {
     }
 
     public UseCaseMaid build() {
-        final Map<RoutingTarget, UseCaseMethod> useCaseMethods = new LinkedHashMap<>();
-        final InjectMaidBuilder injectMaidBuilder = InjectMaid.anInjectMaid(reflectMaid);
-        final MapMaidBuilder mapMaidBuilder = MapMaid.aMapMaid(reflectMaid);
-        dependencies.forEach(injectMaidBuilder::withConfiguration);
-        final Map<UseCaseMethod, TypeIdentifier> virtualTypeIdentifiers = new LinkedHashMap<>();
-        injectMaidBuilder.withScope(Invocation.class, builder -> {
-            builder.withCustomType(InvocationId.class, Invocation.class, Invocation::id);
-            invocationScopedDependencies.forEach(builder::withConfiguration);
-            useCases.forEach(target -> {
-                final ResolvedType type = target.type();
-                final UseCaseMethod useCaseMethod = useCaseMethodOf(type);
-                useCaseMethods.put(target, useCaseMethod);
-                addMethod(useCaseMethod, mapMaidBuilder, virtualTypeIdentifiers);
-                builder.withType(type, PROTOTYPE);
-            });
-        });
-        final Map<ResolvedType, SideEffectRegistration> sideEffectRegistrationMap = new LinkedHashMap<>();
-        sideEffectRegistrations.forEach(sideEffectRegistration -> {
-            final GenericType<?> type = sideEffectRegistration.type();
-            mapMaidBuilder.injecting(type);
-            final ResolvedType resolvedType = reflectMaid.resolve(type);
-            sideEffectRegistrationMap.put(resolvedType, sideEffectRegistration);
-        });
-        final SideEffectsSystem sideEffectsSystem = sideEffectsSystem(sideEffectRegistrationMap);
-        mapperConfigurations.forEach(recipe -> recipe.apply(mapMaidBuilder));
-        final MapMaid mapMaid = mapMaidBuilder.build();
-        final SerializerAndDeserializer serializerAndDeserializer = serializationAndDeserialization(mapMaid, virtualTypeIdentifiers);
-        final InjectMaid injector = injectMaidBuilder.build();
-        return UseCaseMaid.useCaseMaid(
-                reflectMaid,
-                useCases(useCaseMethods),
-                injector,
-                serializerAndDeserializer,
-                sideEffectsSystem,
-                executionDriver
-        );
+        final InjectorConfiguration injectMaidConfiguration = buildInjectorConfiguration();
+        final InjectMaidBuilder injectMaidBuilder = anInjectMaid(reflectMaid).withConfiguration(injectMaidConfiguration);
+        final InjectMaid injectMaid = injectMaidBuilder.build();
+        return injectMaid.getInstance(UseCaseMaid.class);
+    }
+
+    public InjectorConfiguration buildInjectorConfiguration() {
+        final UseCaseMaidIC injectorConfiguration = new UseCaseMaidIC(dependencies,
+                invocationScopedDependencies,
+                mapperConfigurations,
+                useCases,
+                sideEffectRegistrations,
+                executionDriver);
+        return injectorConfiguration;
     }
 }
