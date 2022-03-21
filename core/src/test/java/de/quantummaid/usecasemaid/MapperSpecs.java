@@ -22,6 +22,8 @@
 package de.quantummaid.usecasemaid;
 
 import de.quantummaid.mapmaid.MapMaid;
+import de.quantummaid.usecasemaid.specialusecases.usecases.symmetric.Primitive;
+import de.quantummaid.usecasemaid.specialusecases.usecases.symmetric.UseCaseRequiringSymmetricMapperConfiguration;
 import de.quantummaid.usecasemaid.usecases.UseCaseWithPseudoPrimitives;
 import de.quantummaid.usecasemaid.usecases.UseCaseWithoutParameters;
 import de.quantummaid.usecasemaid.usecases.domain.PseudoPrimitive;
@@ -69,5 +71,22 @@ public final class MapperSpecs {
 
         final Object returnValue = result.returnValue();
         assertThat(returnValue, is("a-b c-d e-f"));
+    }
+
+    /**
+     * Getting the unhelpful:
+     * <p>
+     * java.lang.NullPointerException
+     * at de.quantummaid.mapmaid.builder.resolving.MapMaidResolver.addSignalsOfSerializer(MapMaidResolver.java:78)
+     */
+    @Test
+    public void complainsWhenObjectUsedInRequestAndResponseIsNotConfiguredForDuplexSerialization() {
+        aUseCaseMaid().invoking(UseCaseRequiringSymmetricMapperConfiguration.class)
+            // Here, notice we forget mapper.serializing... or mapper.serializingAndDeserializing...
+            .withMapperConfiguration(mapper -> mapper.deserializingStringBasedCustomPrimitive(
+                Primitive.class,
+                Primitive::deserializeFromString
+            ))
+            .build();
     }
 }
